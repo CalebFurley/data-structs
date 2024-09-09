@@ -14,6 +14,7 @@
 
 //do the sort/search programs! <---------------------------- FR!
 
+//Enumeration, vitural classes/methods
 
 int main()
 {
