@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-int insertionSort(int array[], size_t size, int key)
+int insertionSort(int array[], size_t size)
 {
   //sorting..
   return -1;

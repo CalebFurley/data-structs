@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-int selectionSort(int array[], size_t size, int key)
+int selectionSort(int array[], size_t size)
 {
   //sorting..
   return -1;
