@@ -1,6 +1,15 @@
 #include <iostream>
 using namespace std;
 
+/**
+ * Finish the implementatoin of this class.
+ * 
+ * This is an important class to build out and get used
+ * to building a custom data structure inside the c++
+ * language. And overall just the designing of what goes
+ * into building a data structure that is flexible and robust.
+ */
+
 class Exception {
 
 };
