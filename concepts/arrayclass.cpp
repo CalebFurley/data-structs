@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 
 /**
  * Finish the implementatoin of this class.
@@ -10,20 +9,37 @@ using namespace std;
  * into building a data structure that is flexible and robust.
  */
 
-class Exception {
 
+// When building a vector, make sure to leave extra space 
+//      (remember java does 1.5x real size of array until need to grow.)
+//insertAt()
+//removeAt()
+//getSize()
+//
+
+
+
+class Exception {
+  virtual std::string getMessage() const = 0;
 };
 
 class DivideByZeroException : public Exception {
-
+public:
+  std::string getMessage() const override {
+    return "Divide by zero exception.";
+  }
 };
 
 class ArrayOutOfBoundsException : public Exception {
-
+  std::string getMessage() const override {
+    return "Array out of bounds exception.";
+  }
 };
 
 class NegativeIndexException : public Exception {
-
+  std::string getMessage() const override {
+    return "Negative array index exception.";
+  }
 };
 
 template<class T>
@@ -33,14 +49,16 @@ protected:
   size_t _size;
 public:
   ArrayClass ();
-  ArrayClass (int size);
-  ArrayClass (const ArrayClass& other);
-  ArrayClass& operator = (const ArrayClass& other);
-  T& operator [] (int index);
-  const T& operator [] (int index) const;
+  ArrayClass (size_t size);
+  ArrayClass (const ArrayClass& other); // deep copy constructor
+  ArrayClass& operator = (const ArrayClass& other); // deep copy
+  ~ArrayClass(); // destructor, delete[] _data;
+  bool operator == (const ArrayClass& other); // deep compare
+  T& operator [] (int index); // [] mutator
+  const T& operator [] (int index) const; // [] compare
   friend ostream& operator << (ostream& stream, const ArrayClass& object);
+  //finish definitions..
 };
-//finish definitions..
 
 //implement class here..
 
