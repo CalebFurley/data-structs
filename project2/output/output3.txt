@@ -1,0 +1,16 @@
+Computation Starts
+The output value from this circuit is -9.5
+***** Showing the connections that were established
+I1, Output = A100
+I2, Output = A100
+I3, Output = S200
+I4, Output = S200
+I5, Output = D500
+I6, Output = S600
+A100, Input 1 = I1, Input 2 = I2, Output = M300
+S200, Input 1 = I3, Input 2 = I4, Output = M300
+M300, Input 1 = A100, Input 2 = S200, Output = N400
+N400, Input 1 = M300, Input 2 = None, Output = D500
+D500, Input 1 = N400, Input 2 = I5, Output = S600
+S600, Input 1 = D500, Input 2 = I6, Output = O50
+O50, Input 1 = S600

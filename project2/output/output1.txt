@@ -1,0 +1,9 @@
+Computation Starts
+The output value from this circuit is 136
+***** Showing the connections that were established
+I1, Output = A100
+I2, Output = A100
+I3, Output = M200
+A100, Input 1 = I1, Input 2 = I2, Output = M200
+M200, Input 1 = I3, Input 2 = A100, Output = O50
+O50, Input 1 = M200
