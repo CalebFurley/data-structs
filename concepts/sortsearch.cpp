@@ -17,8 +17,11 @@ void selectionSort(int* array, size_t size) {
         all the other values, is swapped with the value at
         i, then i is increased and the process is ran again.
     */
-    
-    for (int outerIndex = 0; outerIndex < size; ++outerIndex) {
+
+    //write here..
+
+/*    
+       for (int outerIndex = 0; outerIndex < size; ++outerIndex) {
 
         int minIndex = outerIndex;
         
@@ -34,6 +37,7 @@ void selectionSort(int* array, size_t size) {
         array[outerIndex] = array[minIndex];
         array[minIndex] = tempInteger;
     }
+*/    
 }
 
 //Insertion Sort: O(n^2)
@@ -57,6 +61,25 @@ void insertionSort(int* array, size_t size) {
         j+1 gets set to i, since that is the correct location for the point.
     */
 
+    //write here..
+
+    //this the alg that checks left
+    for (int outerIndex = 0; outerIndex < size; ++outerIndex) {
+
+        int minInt = array[outerIndex];
+        int innerIndex = outerIndex - 1;
+
+        while (innerIndex >= 0 && minInt < array[innerIndex]) {
+            
+            array[innerIndex + 1] = array[innerIndex]; //pushing values right
+            innerIndex--; //decrement (going left)
+        }
+
+        array[innerIndex + 1] = minInt;
+
+    }
+
+/*
     for (int outerIndex = 1; outerIndex < size; ++outerIndex) {
 
         int minInteger = array[outerIndex];
@@ -70,7 +93,7 @@ void insertionSort(int* array, size_t size) {
 
         array[innerIndex + 1] = minInteger; //once spot is found that is smaller, step one to right, and place tempMin value.
     }
-
+*/
 }
 
 
@@ -79,7 +102,7 @@ void bucketSort(int* array, size_t size, int maxVal) {
 
     /*
         Time = O(n^2), two O(n) loops, one to breakdown, one to build-up.
-        Space = O(n), linear space (makes a copy array)
+        Space = O(M), linear space (makes a copy array)
 
         The bucket sort algorithm creates a bucketArray that is the lengh of
         the max value of the array to sort.
@@ -92,6 +115,29 @@ void bucketSort(int* array, size_t size, int maxVal) {
         into the original array, until the value in the bucketArray is 0, then steps forward.
     */
 
+    //write here..
+
+    //declare bucket array
+    int bucketArray[maxVal+1] = {0};
+
+    //build bucket array
+    for (int arrayIndex = 0; arrayIndex < size; ++arrayIndex) {
+        bucketArray[array[arrayIndex]]++;
+    }
+
+    //build oriArray back up
+    for (int bucketIndex = 0; bucketIndex < maxVal+1; ++bucketIndex) {
+
+        int arrayIndex = 0;
+
+        while (bucketArray[bucketIndex] > 0) {
+            array[arrayIndex] = bucketIndex;
+            arrayIndex++;
+            bucketArray[bucketIndex]--;
+        }
+    }
+
+/*
     int bucketArray[maxVal + 1] = {0}; //init bucketArray with 0s.
 
     //fill-up the bucketArray
@@ -110,6 +156,7 @@ void bucketSort(int* array, size_t size, int maxVal) {
             bucketArray[bucketIndex]--;             //decrease the count held in the bucket array
         }
     }
+*/
 }
 
 //Merging Arrays: O(n+m)
@@ -131,6 +178,9 @@ void merge(int* arrayA, size_t sizeA, int* arrayB, size_t sizeB, int* arrayC, si
         over) effectly just copying the remaining array into the third.
     */
 
+    //write here..
+
+/*
     //check if arrayC is large enough to hold arrayA + arrayB
     if (sizeA + sizeB > sizeC) {
         std::cerr << "ArrayC is not large enough to hold both arrays." << std::endl;
@@ -170,11 +220,45 @@ void merge(int* arrayA, size_t sizeA, int* arrayB, size_t sizeB, int* arrayC, si
         indexB++;
         indexC++;
     }
+*/
+}
+
+//Merging for merge sort: O(?)
+void merge(int* array, int low, int mid, int high) {
+
+    /*
+        Time = O(?)
+        Space = O(?)
+
+        This is for merging together the broken down elements
+        from the mergesort algorithm.
+    */
+
+    //write here..
+
 }
 
 //Merge Sort: O(nlog(n))
-void mergeSort(int* array, size_t size) {
-    //todo
+void mergeSort(int* array, int low, int high) {
+    
+    /*
+        Time = O(nlog(n)), linear amount of log(n) algs???
+        Space = O(n), copies to new array
+
+        Breaks down the array (through halving) until there is only 1 element, 
+        then starts building it back up whilst sorting it along the way.
+    */
+
+/*
+    if (low < high) { //if low >= high, then theres only 1 element, so stop breakdown
+        
+        int mid = (low + high) / 2; //set middle index
+
+        mergeSort(array, low, mid); //breakdown going-left
+        mergeSort(array, mid+1, high); //breakdown going-right
+        merge(array, low, mid, high); //merge-up the broken-pieces
+    }
+*/
 }
 
 //Linear Search: O(n)
@@ -189,14 +273,18 @@ int linearSearch(int* array, size_t size, int key) {
         when it finds the correct value.
     */
 
+   //write here..
+
+/*
     for (int index = 0; index < size; ++index) {
         
         if (array[index] == key) {
             return index;
         }
     }
+*/
 
-    return -1;//todo ezpz
+    return -1;
 }
 
 //Binary Search Recursive: O(log(n))
@@ -225,6 +313,10 @@ int binarySearch(int* array, int low, int high, int key) {
         version of the algortihm to return to the user from where they called it.
     */
 
+    //write here..
+
+
+/*
     //to avoid overrunning the array
     if (low > high) {
         return -1;//the value was never found.
@@ -246,6 +338,7 @@ int binarySearch(int* array, int low, int high, int key) {
             return binarySearch(array, low, high, key);
         }
     }
+*/
 }
 
 //Binary Search Iterative: O(log(n))
@@ -269,6 +362,9 @@ int binarySearch(int* array, size_t size, int key) {
             or if(low > high) returns -1, because the key was never found.
     */
 
+    //write here..
+
+/*
     int low = 0;
     int high = size - 1;
     
@@ -290,6 +386,7 @@ int binarySearch(int* array, size_t size, int key) {
             }
         }
     }
+*/
 
     return -1;//default-case, key not found
 }
@@ -344,7 +441,7 @@ int main(int argc, char** argv) {
     std::cout << "Merge result = "; printArrayHelper(arrayC, 6); std::cout <<"\n";
 
     //merge sorting here..
-    mergeSort(array, size);
+    mergeSort(array, 0, size-1);
     std::cout << "Merge Sort = "; printArrayHelper(array, size);  std::cout <<"\n";
     scrambleArrayHelper(array, REF_ARRAY, size);
 
