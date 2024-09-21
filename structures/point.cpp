@@ -1,4 +1,5 @@
 #include <iostream>
+#include "exceptions.h"
 
 /////////////////////////////////////////////////////////////////
 
@@ -19,6 +20,7 @@ public:
   template<typename... Args>
   Point(Args... args);
   ~Point() {delete[] T};
+
   void display() const;
   Point<T> operator + (const Point<T>& other);
   Point<T> operator - (const Point<T>& other);
@@ -28,6 +30,7 @@ public:
   Point<T>& operator -= (const Point<T>& other);
   Point<T>& operator *= (const Point<T>& other);
   Point<T>& operator /= (const Point<T>& other);
+
   template<typename U>
   friend std::ostream& operator << (std::ostream& stream, Point<U>& point);
 };

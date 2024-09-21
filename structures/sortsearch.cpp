@@ -249,6 +249,8 @@ void mergeSort(int* array, int low, int high) {
         then starts building it back up whilst sorting it along the way.
     */
 
+    //write here..
+
 /*
     if (low < high) { //if low >= high, then theres only 1 element, so stop breakdown
         
@@ -282,9 +284,10 @@ int linearSearch(int* array, size_t size, int key) {
             return index;
         }
     }
-*/
+
 
     return -1;
+*/
 }
 
 //Binary Search Recursive: O(log(n))
@@ -314,7 +317,6 @@ int binarySearch(int* array, int low, int high, int key) {
     */
 
     //write here..
-
 
 /*
     //to avoid overrunning the array
@@ -386,9 +388,10 @@ int binarySearch(int* array, size_t size, int key) {
             }
         }
     }
-*/
 
     return -1;//default-case, key not found
+
+*/
 }
 
 void scrambleArrayHelper(int* array, const int* reference, size_t size) {
