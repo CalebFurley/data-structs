@@ -1,0 +1,49 @@
+Specific-Tests:
+    The first debugging conducted was simply reading in input from the file
+    and printing the input as it was read. This allowed me to make sure that
+    the data from the files was properly being read and stored prior to design-
+    ing the chip class.
+
+    
+
+Issues-Resolutions:
+    Describe issues and resolutions here..
+
+    I ran into this issue "terminate called after throwing an instance of 'std::bad_alloc'
+    what():  std::bad_alloc" When writing the code to asign connections between chips.
+        This error was due to the way I was passing the allChips[] array into my searchChps
+        function. I tried to intitially debug this with copilot, but copilot couldnt find the
+        error and actually genereted a another error in my code at the end of main... So i scrapped
+        all the code copilot gave me including its little error checks and started commenting out
+        the code I had just written until I realized the searchChips() function was the cause of the
+        error, and I thats when I noticed I passed te array wrong.
+
+
+    Another issue I ran into was when connecting the chips together via th inputs, I would
+    get this output:
+        Set I1 as input 1 to A100
+        Set I2 as input 1 to A100
+        Set I2 as input 2 to A100
+    Notice that the first two lines set the chip fine, but then the third line overwrites the
+    first..
+    The error was in the logic of my setInput1() function. I changed this code:
+        if (input1 != nullptr) setInput2(inputChip); //set-input
+        cout << "Set " << inputChip->getName() << " as input 1 to " << this->getName() << endl;
+        input1 = inputChip;
+    To this code:
+        if (input1 != nullptr) {
+            setInput2(inputChip);
+            return;
+        }
+        else {
+            cout << "Set " << inputChip->getName() << " as input 1 to " << this->getName() << endl;
+            input1 = inputChip;
+        }
+    The error was in the fact that when setInput2() was called from within setInput1(),
+    the function would then return to setInput1() and then set the input.. so adding the else{}
+    and the return in the first block, both took care of the bug.
+
+
+
+Verification:
+    Explain how the class was verified to work using main() or assert().
