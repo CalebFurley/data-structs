@@ -9,6 +9,7 @@ Specific-Tests:
 Issues-Resolutions:
     Describe issues and resolutions here..
 
+1.
     I ran into this issue "terminate called after throwing an instance of 'std::bad_alloc'
     what():  std::bad_alloc" When writing the code to asign connections between chips.
         This error was due to the way I was passing the allChips[] array into my searchChps
@@ -18,7 +19,7 @@ Issues-Resolutions:
         the code I had just written until I realized the searchChips() function was the cause of the
         error, and I thats when I noticed I passed te array wrong.
 
-
+2.
     Another issue I ran into was when connecting the chips together via th inputs, I would
     get this output:
         Set I1 as input 1 to A100
@@ -27,22 +28,16 @@ Issues-Resolutions:
     Notice that the first two lines set the chip fine, but then the third line overwrites the
     first..
     The error was in the logic of my setInput1() function. I changed this code:
-        if (input1 != nullptr) setInput2(inputChip); //set-input
-        cout << "Set " << inputChip->getName() << " as input 1 to " << this->getName() << endl;
+        if (input1 != nullptr) setInput2(inputChip); 
         input1 = inputChip;
     To this code:
-        if (input1 != nullptr) {
-            setInput2(inputChip);
-            return;
-        }
-        else {
-            cout << "Set " << inputChip->getName() << " as input 1 to " << this->getName() << endl;
-            input1 = inputChip;
-        }
+        if (input1 != nullptr) setInput2(inputChip);
+        else input1 = inputChip;
     The error was in the fact that when setInput2() was called from within setInput1(),
-    the function would then return to setInput1() and then set the input.. so adding the else{}
-    and the return in the first block, both took care of the bug.
+    the function would then return to setInput1() and then set the input.. so adding the else
+    statement fixed that because it wouldnt just run the code following the return no matter what.
 
+3.
 
 
 Verification:

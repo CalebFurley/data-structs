@@ -2,13 +2,21 @@
 #include <string> 
 using namespace std; 
  
+
+/*TODO
+    1) Write the compute() method
+    2) Cleanup code and comments
+    3) Write supporting documents
+*/
+
+/*************************** Chip Prototype ***************************/
 class Chip { 
 private: 
-    char chipType = ' ';    // Type of the chip (A: Addition, S: Subtraction, etc.) 
-    string id = "";        // Unique identifier for the chip 
-    Chip* input1 = nullptr;     // Pointer to the first input chip 
-    Chip* input2 = nullptr;     // Pointer to the second input chip (can be NULL) 
-    Chip* output = nullptr;      // Ptr to the output chip (is NULL for output chips) 
+    char chipType = ' '; // Type of the chip (A: Addition, S: Subtraction, etc.) 
+    string id = "";      // Unique identifier for the chip 
+    Chip* input1 = nullptr; // Pointer to the first input chip 
+    Chip* input2 = nullptr; // Pointer to the second input chip (can be NULL) 
+    Chip* output = nullptr; // Ptr to the output chip (is NULL for output chips) 
     double inputValue = 0.0; //for the input chip 
  
 public: 
@@ -21,7 +29,7 @@ public:
     void setInput1(Chip* inputChip);  // Sets the first input chip 
     void setInput2(Chip* inputChip);  // second input chip (can be NULL) 
     void setOutput(Chip* outputChip); // Sets the output chip (can be NULL) 
-    void setInputValue(double value);
+    void setInputValue(double value); // Sets the inputValue member field.
 
     //Functionality
     void compute(); // Performs the operation based on the chip type 
@@ -35,52 +43,37 @@ public:
     //Overloads
     friend ostream& operator << (ostream& stream, const Chip& self); // Output overload
 };
-//////////////////////////////////////////////////////////////////////////////////
 
-Chip::Chip()
-{
-}
+/************************ Chip Implementations ************************/
+Chip::Chip() {}
 
 Chip::Chip(char type, const string &id)
-    : chipType(type), id(id)
-{
-}
+    : chipType(type), id(id) {}
 
-Chip::~Chip()
-{
+Chip::~Chip() {
     if (input1 != nullptr) delete input1;
     if (input2 != nullptr) delete input2;
     if (output != nullptr) delete output;
 }
 
-void Chip::setInput1(Chip *inputChip)
-{
-    if (input1 != nullptr) {
-        setInput2(inputChip);
-        return;
-    }
-    else {
-        input1 = inputChip;
-    }
+void Chip::setInput1(Chip *inputChip) {
+    if (input1 != nullptr) setInput2(inputChip);
+    else input1 = inputChip;
 }
 
-void Chip::setInput2(Chip *inputChip)
-{
+void Chip::setInput2(Chip *inputChip) {
     input2 = inputChip;
 }
 
-void Chip::setOutput(Chip *outputChip)
-{
+void Chip::setOutput(Chip *outputChip) {
     output = outputChip;
 }
 
-void Chip::setInputValue(double value)
-{
+void Chip::setInputValue(double value) {
     this->inputValue = value;
 }
 
-void Chip::compute()
-{
+void Chip::compute() {
     switch(chipType) {
         case 'A':
             //add-values
@@ -116,29 +109,27 @@ void Chip::display() const {
     cout << endl;;
 }
 
-char Chip::getType() const
-{
+char Chip::getType() const {
     return this->chipType;
 }
 
-string Chip::getId() const
-{
+string Chip::getId() const {
     return this->id;
 }
 
-string Chip::getName() const
-{
+string Chip::getName() const {
     return this->getType() + this->getId();
 }
 
-ostream &operator<<(ostream &stream, const Chip &self)
-{
+ostream &operator<<(ostream &stream, const Chip &self) {
     stream << self.chipType << self.id << endl;
     return stream;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
+/******************** Helper Functions for Testing ********************/
 
+// Searches the chips array and returns the index of the named chip that
+// was passed into the function.
 int searchChips(Chip** chipsArray, size_t numChips, string chipName) {
     for (int i=0; i<numChips; ++i) {
         if ( chipsArray[i]->getName() == chipName ) {
@@ -148,8 +139,10 @@ int searchChips(Chip** chipsArray, size_t numChips, string chipName) {
     return -1;
 }
 
-int main () { 
+// Testing done here in the main function.
+int main (int argc, char** argv) { 
  
+    /* Testing Variables Global to Main */
     int numChips; 
     Chip** allChips; 
     int numCommands;
@@ -160,11 +153,13 @@ int main () {
     string chipID = "";
     string chipName = "";
     double value = 0.0;
+    int firstIndex = 0;
+    int secondIndex = 0;
 
-    int firstIndex, secondIndex;
+    /* Read in the chips into the allChips[] array. */
 
-    cin >> numChips; //create an array Chip objects pointers 
-    allChips = new Chip*[numChips]; //each array location is a pointer to a Chip Object 
+    cin >> numChips;
+    allChips = new Chip*[numChips];
     
     for (int i=0; i < numChips; i++) { 
         inputBuffer = "";
@@ -179,10 +174,9 @@ int main () {
         allChips[i] = new Chip(chipType, chipID);
     } 
     
-
-    //read from input the links and make the appropriate  
-    //connections. You may need to search the array allChips  
-    //to find the chip that is referred and connect.
+    
+    
+    /* Connect all the chips, and set the input values. */
     
     cin >> numCommands;
     for (int i=0; i < numCommands; i++) {
@@ -190,7 +184,6 @@ int main () {
         cin >> chipType; //read chip type
 
         switch(chipType) {
-
             //Connect two chips together.
             case 'A':
                 //read the input chips name
@@ -224,6 +217,21 @@ int main () {
                 break;
         }
     }
+
+    /*
+        Time to get the computations working
+            * start at output, recurslvy check if input==NULL and stepping
+              through the tree of nodes.
+            * then return the values all the way back to O50 and output.
+    */
+
+    cout << "Computation Starts" << endl;
+
+    /* run the computation here */
+    /* int outputValue = computationRecursivlyRecursingYayeet() */
+
+    cout << "The output value from this circuit is " << "[VALUE HERE]" << endl;
+
 
     cout << "***** Showing the connections that were established" << endl; 
     for (int i=0; i<numChips; ++i) {

@@ -1,3 +1,4 @@
+-----------------------------------------------------------------------------------------------------------------------
 Prompt:
     How can I get a certain character from a c++ string. Is there a way I can pop it?
 
@@ -61,212 +62,7 @@ Response:
 Reasoning: 
     Looking for an efficient way to breakdown and read the input strings for building
     the chips.
-
------------------------------------------------------------------------------------------------
-
-NOTE: No llm usage on this section, I wrote all this by hand. Just wanted to paste the current
-      state of the program to show incremental development.
-
-#include <iostream>
-#include <string> 
-using namespace std; 
- 
-class Chip { 
-private: 
-    char chipType;    // Type of the chip (A: Addition, S: Subtraction, etc.) 
-    string id;        // Unique identifier for the chip 
-    Chip* input1;     // Pointer to the first input chip 
-    Chip* input2;     // Pointer to the second input chip (can be NULL) 
-    Chip* output;     // Ptr to the output chip (is NULL for output chips) 
-    double inputValue; //for the input chip 
- 
-public: 
-    // Constructor 
-    Chip();
-    Chip(char type, const string& id); 
-    ~Chip();
- 
-    // Method prototypes 
-    void setInput1(Chip* inputChip);  // Sets the first input chip 
-    void setInput2(Chip* inputChip);  // second input chip (can be NULL) 
-    void setOutput(Chip* outputChip); // Sets the output chip (can be NULL) 
-
-    void compute(); // Performs the operation based on the chip type 
-
-    void display() const; // Displays the chip's information 
-
-    char getType() const; // Returns the chip Type  
-    string getId() const; // Returns the chip ID 
-
-    friend ostream& operator << (ostream& stream, const Chip& self); // Output overload
- 
-//****** OTHER METHODS AS NECESSARY ************// 
-
-};
-//////////////////////////////////////////////////////////////////////////////////
-
-Chip::Chip()
-{
-}
-
-Chip::Chip(char type, const string &id)
-    :chipType(type), id(id)
-{
-}
-
-Chip::~Chip()
-{
-    delete input1;
-    delete input2;
-    delete output;
-}
-
-void Chip::setInput1(Chip *inputChip)
-{
-    //set-input
-}
-
-void Chip::setInput2(Chip *inputChip)
-{
-    //set-input
-}
-
-void Chip::setOutput(Chip *outputChip)
-{
-    //print-output
-}
-
-void Chip::compute()
-{
-    switch(chipType) {
-        case 'A':
-            //add-values
-            break;
-        case 'S':
-            //subtract-values
-            break;
-        case 'M':
-            //multiply-values
-            break;
-        case 'D':
-            //divide-values
-            break;
-        case 'N':
-            //negate-value
-            break;
-        default:
-            break;
-    }
-}
-
-void Chip::display() const
-{
-    //update to match example output shown below.
-    cout << chipType << id << endl;
-    //example: I6, Output = S600 --- for the input Chip 
-    //example: O50, Input 1 = S600 --- for the output Chip 
-    //example: A100, Input 1 = I1, Input 2 = I2, Output = M300
-}
-
-char Chip::getType() const
-{
-    return this->chipType;
-}
-
-string Chip::getId() const
-{
-    return this->id;
-}
-
-ostream &operator<<(ostream &stream, const Chip &self)
-{
-    stream << self.chipType << self.id << endl;
-    return stream;
-}
-
-//////////////////////////////////////////////////////////////////////////////////
- 
-int main () { 
- 
-    //**** ALL THE VARIABLES YOU NEED FOR THIS MAIN FUNCTION *****// 
- 
-    int numChips; 
-    Chip** allChips; 
-    int numCommands;
-    string inputBuffer = ""; 
-    
-    cin >> numChips; //create an array Chip objects pointers 
-    allChips = new Chip*[numChips]; //each array location is a pointer to a Chip Object 
-    
-    for (int i=0; i < numChips; i++) { 
-        inputBuffer = "";
-
-        //read the chip ID based on the first letter to determine its type 
-        cin >> inputBuffer;
-        char chipType = inputBuffer[0];
-        inputBuffer.erase(0,1);
-        string chipID = inputBuffer;
-
-        //create the chip object and store it in allChips array.
-        allChips[i] = new Chip(chipType, chipID);
-    } 
-
-    /*for (int i=0; i < numChips; ++i) {
-        cout << *allChips[i];
-    }*/
-    
-    cin >> numCommands; //read in the number of commands
-
-    for (int i=0; i < numCommands; i++) { 
-        inputBuffer = "";
-
-        // read from input the links and make the appropriate  
-        //connections. You may need to search the array allChips  
-        //to find the chip that is referred and connect. 
-
-        cin >> inputBuffer;
-        if (inputBuffer == "A") { //connect-chips
-            cout << inputBuffer << " ";
-            cin >> inputBuffer; //first-chip
-            //set the first chip
-            cout << inputBuffer << " ";
-            cin >> inputBuffer; //second-chip
-            //set the second chip
-            cout << inputBuffer << "\n";
-        }
-        else if (inputBuffer == "I") { //read-inputs
-            cout << inputBuffer << " ";
-            cin >> inputBuffer; // input-chip
-            //set input chip
-            cout << inputBuffer << " ";
-            cin >> inputBuffer; // input-value
-            //set input value
-            cout << inputBuffer << "\n";
-        }
-        else if (inputBuffer == "O") { //compute-output
-            cout << inputBuffer << " ";
-            cin >> inputBuffer; // chip
-            cout << inputBuffer << "\n";
-        }
-
-        // If the first letter is an I, then read the input into the input
-        // buffer chip mentioned.
-
-        // If the first letter is an O, then execute the compute method  
-        // on the object referred. 
-    } 
-    cout << endl;
-    cout << "***** Showing the connections that were established" << endl; 
-    //for each component created call the display () method 
- 
-    //End program safely.
-    delete[] allChips;
-    allChips = nullptr;
-    return 0; 
-}
-
------------------------------------------------------------------------------------------------
-
+-----------------------------------------------------------------------------------------------------------------------
 Prompt:
     What is this error? 
         terminate called after throwing an instance of 'std::bad_alloc'
@@ -280,11 +76,13 @@ Response:
 
         To diagnose and fix this issue, follow these steps:
 
-        1. **Check Memory Allocation**: Ensure that memory allocation is done correctly and that there are no excessive or unnecessary allocations.
+        1. **Check Memory Allocation**: Ensure that memory allocation is done correctly and that there are no
+         excessive or unnecessary allocations.
 
         2. **Check for Memory Leaks**: Ensure that all allocated memory is properly deallocated.
 
-        3. **Check Array Size**: Ensure that the size of the array being allocated is reasonable and within the limits of available memory.
+        3. **Check Array Size**: Ensure that the size of the array being allocated is reasonable and within the 
+        limits of available memory.
 
         Here's an example of how you might allocate and deallocate memory for an array of objects:
 
@@ -318,19 +116,19 @@ Response:
         }
         ```
 
-        If the problem persists, you might want to use tools like Valgrind to detect memory leaks and other memory-related issues. Run the following command in your terminal to use Valgrind:
+        If the problem persists, you might want to use tools like Valgrind to detect memory leaks and other 
+        memory-related issues. Run the following command in your terminal to use Valgrind:
 
         ```sh
         valgrind --leak-check=full ./your_program
         ```
 
-        Replace `./your_program` with the path to your compiled executable. This will help you identify where the memory allocation issues are occurring.
+        Replace `./your_program` with the path to your compiled executable. This will help you identify where
+         the memory allocation issues are occurring.
 
     Reasoning:
         When compiling that error was thrown.
-
-    -----------------------------------------------------------------------------------------------
-
+    -----------------------------------------------------------------------------------------------------------------------
     Prompt: 
         Pasted progam here..
         Can you check my program for any leaks that could have caused the previous error?
@@ -339,264 +137,38 @@ Response:
             To check for potential memory leaks and issues in your program, let's review the code step-by-step:
 
         1. **Memory Allocation and Deallocation**:
-        - You allocate memory for [`allChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A313%2C%22character%22%3A17%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") using `new Chip*[numChips]`.
-        - Each element in [`allChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A313%2C%22character%22%3A17%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") is allocated using `new Chip(chipType, chipID)`.
-        - You correctly deallocate [`allChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A313%2C%22character%22%3A17%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") using `delete[] allChips`.
+        - You allocate memory for [`allChips`]
+        - Each element in [`allChips`]
+        - You correctly deallocate
 
         2. **Destructor**:
-        - The `Chip` destructor deletes `input1`, `input2`, and `output`. This can cause double deletion if multiple `Chip` objects point to the same `Chip` object. Ensure that each `Chip` object is only deleted once.
+        - The `Chip` destructor deletes `input1`, `input2`, and `output`. This can cause double deletion if multiple `Chip`
+         objects point to the same `Chip` object. Ensure that each `Chip` object is only deleted once.
 
         3. **Potential Issues**:
-        - **Double Deletion**: If multiple `Chip` objects share the same `input1`, `input2`, or `output`, deleting one `Chip` will invalidate the pointers in the others.
-        - **Uninitialized Pointers**: Ensure that `input1`, `input2`, and `output` are initialized to [`nullptr`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A314%2C%22character%22%3A19%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") in the constructors.
+        - **Double Deletion**: If multiple `Chip` objects share the same `input1`, `input2`, or `output`, deleting 
+        one `Chip` will invalidate the pointers in the others.
+        - **Uninitialized Pointers**: Ensure that `input1`, `input2`, and `output` are initialized to [`nullptr`]
 
         Here's a revised version of your code with some fixes:
 
-        ```cpp
-        #include <iostream>
-        #include <string> 
-        using namespace std; 
-        
-        class Chip { 
-        private: 
-            char chipType;    // Type of the chip (A: Addition, S: Subtraction, etc.) 
-            string id;        // Unique identifier for the chip 
-            Chip* input1;     // Pointer to the first input chip 
-            Chip* input2;     // Pointer to the second input chip (can be NULL) 
-            Chip* output;     // Ptr to the output chip (is NULL for output chips) 
-            double inputValue; //for the input chip 
-        
-        public: 
-            // Constructor 
-            Chip();
-            Chip(char type, const string& id); 
-            ~Chip();
-        
-            // Method prototypes 
-            void setInput1(Chip* inputChip);  // Sets the first input chip 
-            void setInput2(Chip* inputChip);  // second input chip (can be NULL) 
-            void setOutput(Chip* outputChip); // Sets the output chip (can be NULL) 
-
-            void setInputValue(double value);
-
-            void compute(); // Performs the operation based on the chip type 
-
-            void display() const; // Displays the chip's information 
-
-            char getType() const; // Returns the chip Type  
-            string getId() const; // Returns the chip ID 
-            string getName() const; //Returns full chip name ("type+id")
-
-            friend ostream& operator << (ostream& stream, const Chip& self); // Output overload
-        
-        //****** OTHER METHODS AS NECESSARY ************// 
-
-        };
-        //////////////////////////////////////////////////////////////////////////////////
-
-        Chip::Chip()
-            : input1(nullptr), input2(nullptr), output(nullptr), inputValue(0.0)
-        {
-        }
-
-        Chip::Chip(char type, const string &id)
-            : chipType(type), id(id), input1(nullptr), input2(nullptr), output(nullptr), inputValue(0.0)
-        {
-        }
-
-        Chip::~Chip()
-        {
-            // Only delete if this Chip owns the pointers
-            if (input1 != nullptr) delete input1;
-            if (input2 != nullptr) delete input2;
-            if (output != nullptr) delete output;
-        }
-
-        void Chip::setInput1(Chip *inputChip)
-        {
-            input1 = inputChip;
-        }
-
-        void Chip::setInput2(Chip *inputChip)
-        {
-            input2 = inputChip;
-        }
-
-        void Chip::setOutput(Chip *outputChip)
-        {
-            output = outputChip;
-        }
-
-        void Chip::setInputValue(double value)
-        {
-            this->inputValue = value;
-        }
-
-        void Chip::compute()
-        {
-            switch(chipType) {
-                case 'A':
-                    //add-values
-                    break;
-                case 'S':
-                    //subtract-values
-                    break;
-                case 'M':
-                    //multiply-values
-                    break;
-                case 'D':
-                    //divide-values
-                    break;
-                case 'N':
-                    //negate-value
-                    break;
-                case 'I':
-                    //input
-                    break;
-                case 'O':
-                    //output
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void Chip::display() const
-        {
-            cout << chipType << id << endl;
-        }
-
-        char Chip::getType() const
-        {
-            return this->chipType;
-        }
-
-        string Chip::getId() const
-        {
-            return this->id;
-        }
-
-        string Chip::getName() const
-        {
-            return this->getType() + this->getId();
-        }
-
-        ostream &operator<<(ostream &stream, const Chip &self)
-        {
-            stream << self.chipType << self.id << endl;
-            return stream;
-        }
-
-        //////////////////////////////////////////////////////////////////////////////////
-
-        int searchChips(Chip* chipsArray, size_t numChips, string chipName) {
-            for (int i=0; i<numChips; ++i) {
-                if ( chipsArray[i].getName() == chipName ) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        int main () { 
-        
-            int numChips; 
-            Chip** allChips; 
-            int numCommands;
-            string inputBuffer = ""; 
-            Chip* inputChip;
-
-            char chipType;
-            string chipID;
-            string chipName;
-            double value;
-
-            int firstIndex, secondIndex;
-
-            cin >> numChips; //create an array Chip objects pointers 
-            allChips = new Chip*[numChips]; //each array location is a pointer to a Chip Object 
-            
-            for (int i=0; i < numChips; i++) { 
-                inputBuffer = "";
-
-                //read the chip ID based on the first letter to determine its type 
-                cin >> inputBuffer;
-                chipType = inputBuffer[0];
-                inputBuffer.erase(0,1);
-                chipID = inputBuffer;
-
-                //create the chip object and store it in allChips array.
-                allChips[i] = new Chip(chipType, chipID);
-            } 
-            
-            // Commands Section //
-
-            cin >> numCommands; //read in the number of commands
-
-            for (int i=0; i < numCommands; i++) {
-
-                //read from input the links and make the appropriate  
-                //connections. You may need to search the array allChips  
-                //to find the chip that is referred and connect. 
-
-                cin >> chipType; //read chip type
-
-                switch(chipType) {
-                    case 'A':
-                        //read in first chip
-                        cin >> chipName;
-                        firstIndex = searchChips(*allChips, numChips, chipName);
-                        //read in second chip
-                        cin >> chipName;
-                        secondIndex = searchChips(*allChips, numChips, chipName);
-                        //connect the chips
-                        allChips[secondIndex]->setInput1(allChips[firstIndex]);
-                        break;
-                    case 'I':
-                        //read in the chip
-                        cin >> chipName;
-                        firstIndex = searchChips(*allChips, numChips, chipName);
-                        //read in the value
-                        cin >> value;
-                        //set the value to the chip
-                        allChips[firstIndex]->setInputValue(value);
-                        break;
-                    case 'O':
-                        //nothing
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            cout << "***** Showing the connections that were established" << endl; 
-            for (int i=0; i<numChips; ++i) {
-                allChips[i]->display();
-            }
-
-            //End program safely.
-            for (int i=0; i<numChips; ++i) {
-                delete allChips[i];
-            }
-            delete[] allChips;
-            allChips = nullptr;
-            return 0; 
-        }
-        ```
+        ***********************
+        **pastes program here**
+        ***********************
 
         ### Key Changes:
-        1. **Initialization of Pointers**: Ensure `input1`, `input2`, and `output` are initialized to [`nullptr`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A314%2C%22character%22%3A19%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") in the constructors.
-        2. **Destructor**: Only delete `input1`, `input2`, and `output` if they are not [`nullptr`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A314%2C%22character%22%3A19%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition").
-        3. **Memory Deallocation in `main`**: Added a loop to delete each `Chip` object in [`allChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fllm_usage.txt%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A313%2C%22character%22%3A17%7D%7D%5D%2C%22152a6ff0-5e7d-4b0d-84b4-a1a44fb88613%22%5D "Go to definition") before deleting the array itself.
+        1. **Initialization of Pointers**: Ensure `input1`, `input2`, and `output` are initialized to [`nullptr`]
+        2. **Destructor**: Only delete `input1`, `input2`, and `output` if they are not [`nullptr`]
+        3. **Memory Deallocation in `main`**: Added a loop to delete each `Chip` object in [`allChips`]
 
-        These changes should help prevent memory leaks and double deletions. If the problem persists, consider using Valgrind to further diagnose memory issues.
+        These changes should help prevent memory leaks and double deletions. If the problem persists, consider using 
+        Valgrind to further diagnose memory issues.
 
     Reasoning:
         Quick debugging so I can keep moving forward with development. I may still install valgrind like
         suggested since I have heard of that tool in the past. It did not end up fixing the issue so I'm
         going to debug this by hand. Literally found the block where the error was in 2 seconds... lol.
-    -----------------------------------------------------------------------------------------------
-
+    -----------------------------------------------------------------------------------------------------------------------
     Prompt:
         int searchChips(Chip* chipsArray, size_t numChips, string chipName) {
             for (int i=0; i<numChips; ++i) {
@@ -610,268 +182,21 @@ Response:
         I think this causes the error somehow
 
     Response:
-        The [`searchChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A4%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") function itself looks correct in terms of logic. However, there are a few potential issues that could cause problems:
-
-    1. **Dereferencing Null Pointers**: If [`chipsArray`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A22%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") contains null pointers, calling [`getName()`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A124%2C%22character%22%3A13%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") on a null pointer will cause undefined behavior and likely a crash.
-
-    2. **Incorrect Array Passing**: Ensure that [`chipsArray`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A22%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") is correctly passed to the function. If you pass a dereferenced pointer incorrectly, it could lead to accessing invalid memory.
-
-    3. **Memory Corruption**: If there is memory corruption elsewhere in the program, it could affect the behavior of this function.
-
+    1. **Dereferencing Null Pointers**: If [`chipsArray`]
+    2. **Incorrect Array Passing**: Ensure that [`chipsArray`]
+    3. **Memory Corruption**: If there is memory corruption elsewhere in the program, it could affect the 
+    behavior of this function.
     Let's add some checks and debug output to help diagnose the issue:
 
-    ```cpp
-    #include <iostream>
-    #include <string> 
-    using namespace std; 
-    
-    class Chip { 
-    private: 
-        char chipType;    // Type of the chip (A: Addition, S: Subtraction, etc.) 
-        string id;        // Unique identifier for the chip 
-        Chip* input1;     // Pointer to the first input chip 
-        Chip* input2;     // Pointer to the second input chip (can be NULL) 
-        Chip* output;     // Ptr to the output chip (is NULL for output chips) 
-        double inputValue; //for the input chip 
-    
-    public: 
-        // Constructor 
-        Chip();
-        Chip(char type, const string& id); 
-        ~Chip();
-    
-        // Method prototypes 
-        void setInput1(Chip* inputChip);  // Sets the first input chip 
-        void setInput2(Chip* inputChip);  // second input chip (can be NULL) 
-        void setOutput(Chip* outputChip); // Sets the output chip (can be NULL) 
-
-        void setInputValue(double value);
-
-        void compute(); // Performs the operation based on the chip type 
-
-        void display() const; // Displays the chip's information 
-
-        char getType() const; // Returns the chip Type  
-        string getId() const; // Returns the chip ID 
-        string getName() const; //Returns full chip name ("type+id")
-
-        friend ostream& operator << (ostream& stream, const Chip& self); // Output overload
-    
-    //****** OTHER METHODS AS NECESSARY ************// 
-
-    };
-    //////////////////////////////////////////////////////////////////////////////////
-
-    Chip::Chip()
-        : input1(nullptr), input2(nullptr), output(nullptr), inputValue(0.0)
-    {
-    }
-
-    Chip::Chip(char type, const string &id)
-        : chipType(type), id(id), input1(nullptr), input2(nullptr), output(nullptr), inputValue(0.0)
-    {
-    }
-
-    Chip::~Chip()
-    {
-        // Only delete if this Chip owns the pointers
-        if (input1 != nullptr) delete input1;
-        if (input2 != nullptr) delete input2;
-        if (output != nullptr) delete output;
-    }
-
-    void Chip::setInput1(Chip *inputChip)
-    {
-        input1 = inputChip;
-    }
-
-    void Chip::setInput2(Chip *inputChip)
-    {
-        input2 = inputChip;
-    }
-
-    void Chip::setOutput(Chip *outputChip)
-    {
-        output = outputChip;
-    }
-
-    void Chip::setInputValue(double value)
-    {
-        this->inputValue = value;
-    }
-
-    void Chip::compute()
-    {
-        switch(chipType) {
-            case 'A':
-                //add-values
-                break;
-            case 'S':
-                //subtract-values
-                break;
-            case 'M':
-                //multiply-values
-                break;
-            case 'D':
-                //divide-values
-                break;
-            case 'N':
-                //negate-value
-                break;
-            case 'I':
-                //input
-                break;
-            case 'O':
-                //output
-                break;
-            default:
-                break;
-        }
-    }
-
-    void Chip::display() const
-    {
-        cout << chipType << id << endl;
-    }
-
-    char Chip::getType() const
-    {
-        return this->chipType;
-    }
-
-    string Chip::getId() const
-    {
-        return this->id;
-    }
-
-    string Chip::getName() const
-    {
-        return this->getType() + this->getId();
-    }
-
-    ostream &operator<<(ostream &stream, const Chip &self)
-    {
-        stream << self.chipType << self.id << endl;
-        return stream;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////
-
-    int searchChips(Chip** chipsArray, size_t numChips, const string& chipName) {
-        for (size_t i = 0; i < numChips; ++i) {
-            if (chipsArray[i] == nullptr) {
-                cerr << "Error: Null pointer found in chipsArray at index " << i << endl;
-                continue;
-            }
-            if (chipsArray[i]->getName() == chipName) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    int main () { 
-    
-        int numChips; 
-        Chip** allChips; 
-        int numCommands;
-        string inputBuffer = ""; 
-        Chip* inputChip;
-
-        char chipType = ' ';
-        string chipID = "";
-        string chipName = "";
-        double value = 0.0;
-
-        int firstIndex, secondIndex;
-
-        cin >> numChips; //create an array Chip objects pointers 
-        allChips = new Chip*[numChips]; //each array location is a pointer to a Chip Object 
-        
-        for (int i=0; i < numChips; i++) { 
-            inputBuffer = "";
-
-            //read the chip ID based on the first letter to determine its type 
-            cin >> inputBuffer;
-            chipType = inputBuffer[0];
-            inputBuffer.erase(0,1);
-            chipID = inputBuffer;
-
-            //create the chip object and store it in allChips array.
-            allChips[i] = new Chip(chipType, chipID);
-        } 
-        
-        // Commands Section //
-
-        cin >> numCommands; //read in the number of commands
-
-        for (int i=0; i < numCommands; i++) {
-
-            //read from input the links and make the appropriate  
-            //connections. You may need to search the array allChips  
-            //to find the chip that is referred and connect. 
-
-            cin >> chipType; //read chip type
-
-            switch(chipType) {
-                case 'A':
-                    //read in first chip
-                    cin >> chipName;
-                    firstIndex = searchChips(allChips, numChips, chipName);
-                    if (firstIndex == -1) {
-                        cerr << "Error: Chip " << chipName << " not found." << endl;
-                        continue;
-                    }
-                    //read in second chip
-                    cin >> chipName;
-                    secondIndex = searchChips(allChips, numChips, chipName);
-                    if (secondIndex == -1) {
-                        cerr << "Error: Chip " << chipName << " not found." << endl;
-                        continue;
-                    }
-                    //connect the chips
-                    allChips[secondIndex]->setInput1(allChips[firstIndex]);
-                    break;
-                case 'I':
-                    //read in the chip
-                    cin >> chipName;
-                    firstIndex = searchChips(allChips, numChips, chipName);
-                    if (firstIndex == -1) {
-                        cerr << "Error: Chip " << chipName << " not found." << endl;
-                        continue;
-                    }
-                    //read in the value
-                    cin >> value;
-                    //set the value to the chip
-                    allChips[firstIndex]->setInputValue(value);
-                    break;
-                case 'O':
-                    //nothing
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        cout << "***** Showing the connections that were established" << endl; 
-        for (int i=0; i<numChips; ++i) {
-            allChips[i]->display();
-        }
-
-        //End program safely.
-        for (int i=0; i<numChips; ++i) {
-            delete allChips[i];
-        }
-        delete[] allChips;
-        allChips = nullptr;
-        return 0; 
-    }
-    ```
+    ***********************
+    **pastes program here**
+    ***********************
 
     ### Key Changes:
-    1. **Null Pointer Check**: Added a check in [`searchChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A4%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") to ensure that [`chipsArray[i]`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A22%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") is not null before calling [`getName()`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A124%2C%22character%22%3A13%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition").
-    2. **Error Messages**: Added error messages to help diagnose issues when a chip is not found or when a null pointer is encountered.
-    3. **Correct Array Passing**: Changed the parameter type of [`chipsArray`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A22%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") in [`searchChips`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A137%2C%22character%22%3A4%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") to [`Chip**`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A129%2C%22character%22%3A43%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition") to match how it is used in [`main`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject2%2Fproject2.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A146%2C%22character%22%3A4%7D%7D%5D%2C%22ff2aac9e-6f93-4ded-9711-2ea610d32951%22%5D "Go to definition").
+    1. **Null Pointer Check**: Added a check in [`searchChips`]
+    2. **Error Messages**: Added error messages to help diagnose issues when a chip is not found or when
+     a null pointer is encountered.
+    3. **Correct Array Passing**: Changed the parameter type of [`chipsArray`]
 
     These changes should help you identify if there are any null pointers or other issues causing the error.
 
@@ -880,3 +205,4 @@ Reasoning:
     bug was actually the way I was passing the array into the searchChips function. Fixed the error, got segmentation becaz
     copilt generated a second freaking delete[] array but as a loop at the end of my code, so I deleted that crap, and now
     the code works.
+-----------------------------------------------------------------------------------------------------------------------
