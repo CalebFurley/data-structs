@@ -206,3 +206,115 @@ Reasoning:
     copilt generated a second freaking delete[] array but as a loop at the end of my code, so I deleted that crap, and now
     the code works.
 -----------------------------------------------------------------------------------------------------------------------
+Prompt:
+    I am currently trying to implement the compute method of my program. The point of the program to to recursivly step
+    through and check if all the inputs are null or not, if null, they need to keep stepping until a value is found then 
+    return it back up to the 050 chip to be outputted.
+
+Response:
+    To implement the [`compute`]
+
+Here's a revised version of your [`compute`]
+
+```cpp
+void Chip::compute() {
+    switch(chipType) {
+        case 'A':
+            if (input1 != nullptr && input2 != nullptr) {
+                input1->compute();
+                input2->compute();
+                inputValue = input1->inputValue + input2->inputValue;
+            }
+            break;
+        case 'S':
+            if (input1 != nullptr && input2 != nullptr) {
+                input1->compute();
+                input2->compute();
+                inputValue = input1->inputValue - input2->inputValue;
+            }
+            break;
+        case 'M':
+            if (input1 != nullptr && input2 != nullptr) {
+                input1->compute();
+                input2->compute();
+                inputValue = input1->inputValue * input2->inputValue;
+            }
+            break;
+        case 'D':
+            if (input1 != nullptr && input2 != nullptr) {
+                input1->compute();
+                input2->compute();
+                if (input2->inputValue != 0) {
+                    inputValue = input1->inputValue / input2->inputValue;
+                } else {
+                    cerr << "Error: Division by zero" << endl;
+                }
+            }
+            break;
+        case 'N':
+            if (input1 != nullptr) {
+                input1->compute();
+                inputValue = -input1->inputValue;
+            }
+            break;
+        case 'I':
+            // Input value is already set
+            break;
+        case 'O':
+            cout << "Computation Starts" << endl;
+            if (input1 != nullptr) {
+                input1->compute();
+                cout << "The output value from this circuit is " << input1->inputValue << endl;
+            } else {
+                cerr << "Error: No input for output chip" << endl;
+            }
+            break;
+        default:
+            cerr << "Error: Unknown chip type" << endl;
+            break;
+    }
+}
+```
+
+### Explanation:
+1. **Addition [`A`]
+2. **Subtraction [`S`]
+3. **Multiplication [`M`]
+4. **Division [`D`]
+5. **Negation [`N`]
+6. **Input [`I`]
+7. **Output [`O`]
+
+### Usage Example:
+To use the [`compute`]
+
+```cpp
+int main() {
+    Chip inputChip('I', "1");
+    inputChip.setInputValue(10);
+
+    Chip addChip('A', "2");
+    addChip.setInput1(&inputChip);
+    addChip.setInput2(&inputChip);
+
+    Chip outputChip('O', "3");
+    outputChip.setInput1(&addChip);
+
+    outputChip.compute();
+
+    return 0;
+}
+```
+
+This example sets up an input chip with a value of 10, an addition chip that adds the input chip's value 
+to itself, and an output chip that prints the result. The [`compute`]
+
+Reasoning:
+    After a couple days of struggling to make progress on the best way to implement the recursive
+    portion of the project, I decided to ask copilot and its answer was along the track of my thiking.
+    Just helping to figure out the best way to implement this without writing spagheti code.
+
+    Despite the above generated code by copliot being sufficient to finish the project. I am going to 
+    go back through and try to use this code as a hint and still try to implement the method myself. This
+    is good recursive practice Id prefer not to miss out on. Plus I wrote the entire rest of the project
+    so giving it up to copilot in the end feels kind of bad..

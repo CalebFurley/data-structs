@@ -1,44 +1,74 @@
 Specific-Tests:
-    The first debugging conducted was simply reading in input from the file
-    and printing the input as it was read. This allowed me to make sure that
-    the data from the files was properly being read and stored prior to design-
-    ing the chip class.
+    During development of the project, debug printing was used substantially. Putting print statements
+    throughout the code while developing allowed me to track values. (I suppose in future I could use VSCode
+    debugger and breakpoints) For example, during the connetion of the chips, I printed out statements such as:
+        "Chip300" set as input to "Chip500"
+        "Chip400" set as input to "Chip500"
+        etc...
+    This allowed me to track how the chips where connecting so whilst I debugged a bug I wrote during this phase
+    of development.
 
+    After development, I did not write any assert() functions this time, but I did make sure that the output matched
+    to the provided output files for the project. Which when running input1, input2, and input3 through the compiled
+    program, all the outputs to the console matched with the provided output files.
+
+    For future, I could write exceptions and test putting purposefully bugs into the input files and makeing sure the
+    program and catch and handle those errors as necessary. But for now, banking on the fact that the user can provide
+    a correctly formatted input file.
     
 
 Issues-Resolutions:
     Describe issues and resolutions here..
 
-1.
-    I ran into this issue "terminate called after throwing an instance of 'std::bad_alloc'
-    what():  std::bad_alloc" When writing the code to asign connections between chips.
-        This error was due to the way I was passing the allChips[] array into my searchChps
-        function. I tried to intitially debug this with copilot, but copilot couldnt find the
-        error and actually genereted a another error in my code at the end of main... So i scrapped
-        all the code copilot gave me including its little error checks and started commenting out
-        the code I had just written until I realized the searchChips() function was the cause of the
-        error, and I thats when I noticed I passed te array wrong.
+    1.
+        I ran into this issue "terminate called after throwing an instance of 'std::bad_alloc'
+        what():  std::bad_alloc" When writing the code to asign connections between chips.
+            This error was due to the way I was passing the allChips[] array into my searchChps
+            function. I tried to intitially debug this with copilot, but copilot couldnt find the
+            error and actually genereted a another error in my code at the end of main... So i scrapped
+            all the code copilot gave me including its little error checks and started commenting out
+            the code I had just written until I realized the searchChips() function was the cause of the
+            error, and I thats when I noticed I passed te array wrong.
 
-2.
-    Another issue I ran into was when connecting the chips together via th inputs, I would
-    get this output:
-        Set I1 as input 1 to A100
-        Set I2 as input 1 to A100
-        Set I2 as input 2 to A100
-    Notice that the first two lines set the chip fine, but then the third line overwrites the
-    first..
-    The error was in the logic of my setInput1() function. I changed this code:
-        if (input1 != nullptr) setInput2(inputChip); 
-        input1 = inputChip;
-    To this code:
-        if (input1 != nullptr) setInput2(inputChip);
-        else input1 = inputChip;
-    The error was in the fact that when setInput2() was called from within setInput1(),
-    the function would then return to setInput1() and then set the input.. so adding the else
-    statement fixed that because it wouldnt just run the code following the return no matter what.
+    2.
+        Another issue I ran into was when connecting the chips together via th inputs, I would
+        get this output:
+            Set I1 as input 1 to A100
+            Set I2 as input 1 to A100
+            Set I2 as input 2 to A100
+        Notice that the first two lines set the chip fine, but then the third line overwrites the
+        first..
+        The error was in the logic of my setInput1() function. I changed this code:
+            if (input1 != nullptr) setInput2(inputChip); 
+            input1 = inputChip;
+        To this code:
+            if (input1 != nullptr) setInput2(inputChip);
+            else input1 = inputChip;
+        The error was in the fact that when setInput2() was called from within setInput1(),
+        the function would then return to setInput1() and then set the input.. so adding the else
+        statement fixed that because it wouldnt just run the code following the return no matter what.
 
-3.
+    3.
+        Lastly, this wasn't so much a bug or error, but I struggled conseptually on the best way to write the
+        compute() function and after a few days of being stuck handed this off to copilot to see how it would write
+        the function. It wrote it in a way I thought of, but way better without needing to pass any parameters and
+        just calling the compute() all the way through the recursion then instead of returning any values, just
+        altering the inputValue member variable of the chips all the way back to the output chip where it was originally
+        called and outputing the inputValue variable after the recursion completed. Obvisouly I went back and I took the
+        time to understand how it was written because I'm still working on my recursive thinking.
+    
+    4.
+        I ran into an error with input file 2 and 3 where the output did not print "Input 2 = None" for the negation chip
+        so I added some checks in the display method to handle this and make sure all chips are properly printing.
+
+    5. 
+        Lastly, when submitting the program, I ran into the bug where the input3 file had the 050 chip read in
+        earlier than normal. After almost bashing my head against a wall, I wrote some dirty code at the bottom
+        of main to skip over printing the 050 chip during the print loop, then print it after.
 
 
 Verification:
-    Explain how the class was verified to work using main() or assert().
+    The class was verified through running the program with the main function that was developed alongside the 
+    program. When the main function was written, the output was matched up against the output files provided for
+    the project and verified that all the values where equal. Past this, the project was then verified through the
+    test cases provided through the gradescope upload page.
