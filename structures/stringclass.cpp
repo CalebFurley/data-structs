@@ -1,4 +1,9 @@
 #include <iostream>
 #include "exceptions.h"
+using namespace std;
 
-//write out stirng from chapter 3.
+/************************** PROTOTYPE ****************************/
+
+/************************ IMPLEMENTATION *************************/
+
+/*************************** TESTING *****************************/

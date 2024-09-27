@@ -1,4 +1,9 @@
 #include <iostream>
 #include "exceptions.h"
+using namespace std;
 
-//write out matrix from chapter 3.
+/************************** PROTOTYPE ****************************/
+
+/************************ IMPLEMENTATION *************************/
+
+/*************************** TESTING *****************************/
