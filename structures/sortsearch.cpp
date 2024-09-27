@@ -63,22 +63,6 @@ void insertionSort(int* array, size_t size) {
 
     //write here..
 
-    //this the alg that checks left
-    for (int outerIndex = 0; outerIndex < size; ++outerIndex) {
-
-        int minInt = array[outerIndex];
-        int innerIndex = outerIndex - 1;
-
-        while (innerIndex >= 0 && minInt < array[innerIndex]) {
-            
-            array[innerIndex + 1] = array[innerIndex]; //pushing values right
-            innerIndex--; //decrement (going left)
-        }
-
-        array[innerIndex + 1] = minInt;
-
-    }
-
 /*
     for (int outerIndex = 1; outerIndex < size; ++outerIndex) {
 
@@ -116,26 +100,6 @@ void bucketSort(int* array, size_t size, int maxVal) {
     */
 
     //write here..
-
-    //declare bucket array
-    int bucketArray[maxVal+1] = {0};
-
-    //build bucket array
-    for (int arrayIndex = 0; arrayIndex < size; ++arrayIndex) {
-        bucketArray[array[arrayIndex]]++;
-    }
-
-    //build oriArray back up
-    for (int bucketIndex = 0; bucketIndex < maxVal+1; ++bucketIndex) {
-
-        int arrayIndex = 0;
-
-        while (bucketArray[bucketIndex] > 0) {
-            array[arrayIndex] = bucketIndex;
-            arrayIndex++;
-            bucketArray[bucketIndex]--;
-        }
-    }
 
 /*
     int bucketArray[maxVal + 1] = {0}; //init bucketArray with 0s.
