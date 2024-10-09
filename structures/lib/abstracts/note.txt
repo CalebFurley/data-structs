@@ -1,0 +1,11 @@
+When you can get around to it, start putting the abstracts for
+each data structure in here.
+
+Can also add the exceptions into the abstracts to declutter the
+other headers.
+
+Can also implement enumeration and other useful things that sridar
+does in the book with his abstracts.
+
+Overall, make them useful, maybe even inherit and rewire all the data
+structures at some point as a test of self knowledge.

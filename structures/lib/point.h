@@ -5,6 +5,14 @@
 #include <iostream>
 using std::ostream;
 
+class PointException : public Exception {};
+//define other exceptions
+//implement exceptions throughout class
+
+/*
+  Class Explanation here..
+*/
+
 template <class DT>
 class Point {
 protected:
