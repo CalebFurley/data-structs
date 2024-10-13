@@ -2,16 +2,12 @@
 #define MATRIX_H
 
 #include <iostream>
-#include "exceptions.h"
+#include "exception.h"
 using std::ostream;
 
 class MatrixException : public Exception {};
 //define other exceptions
 //implement exceptions throughout class
-
-/*
-  Class Explanation here..
-*/
 
 template <class DT>
 class Matrix {

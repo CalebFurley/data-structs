@@ -2,7 +2,7 @@
 #define LINKEDLIST_H
 
 #include <iostream>
-#include "exceptions.h"
+#include "exception.h"
 using std::ostream;
 
 class LinkedListException : public Exception {};
@@ -10,10 +10,6 @@ class LinkedListMemory : public LinkedListException {};
 class LinkedListBounds : public LinkedListException {};
 //define other exceptions
 //implement exceptions throughout class
-
-/*
-  Class Explanation here..
-*/
 
 template <class DT>
 class LinkedList {

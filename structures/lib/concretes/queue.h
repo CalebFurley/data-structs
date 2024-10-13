@@ -2,7 +2,7 @@
 #define QUEUE_H
 
 #include <iostream>
-#include "exceptions.h"
+#include "exception.h"
 using std::ostream;
 
 class QueueException : public Exception {};
@@ -11,10 +11,6 @@ class QueueUnderflow : public QueueException {};
 class QueueMemomry : public QueueException {};
 //define other exceptions
 //implement exceptions throughout class
-
-/*
-  Class Explanation here..
-*/
 
 template <class DT>
 class Queue {

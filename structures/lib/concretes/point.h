@@ -1,17 +1,11 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include "exceptions.h"
+#include "exception.h"
 #include <iostream>
 using std::ostream;
 
 class PointException : public Exception {};
-//define other exceptions
-//implement exceptions throughout class
-
-/*
-  Class Explanation here..
-*/
 
 template <class DT>
 class Point {

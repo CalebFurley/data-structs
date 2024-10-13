@@ -2,7 +2,7 @@
 #define STACK_H
 
 #include<iostream>
-#include "exceptions.h"
+#include "exception.h"
 using std::ostream;
 
 class StackException : public Exception {};
@@ -10,10 +10,6 @@ class StackOverflow : public StackException {};
 class StackUnderflow : public StackException {};
 //define other exceptions
 //implement exceptions throughout class
-
-/*
-  Class Explanation here..
-*/
 
 template<class DT>
 class Stack {
