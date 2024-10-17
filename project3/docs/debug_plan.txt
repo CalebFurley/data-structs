@@ -2,6 +2,10 @@ Specific Tests:
   Describe the specific test you conducted
     ex: how did you test that the foo() method worked correctly?
 
+  Initially, I placed statements behind the number of commands and command type
+  cin readings then compiled and ran the program to make sure the input was being
+  read correctly.
+
 Issues and Resolutions:
   Explain specific issues and their resolutions
 

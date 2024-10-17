@@ -1,9 +1,81 @@
 Prompt:
-  
+  Im doing a project for school,
+  class CPUJob { 
+  public:     
+    int job_id;               // Unique identifier for the job     
+    int priority;             // Priority level of the job (1-10)     
+    int job_type;             // Job type (1-10)     
+    int cpu_time_consumed;    // Total CPU time consumed by the job  
+    int memory_consumed;      // Total memory consumed thus far 
+
+    CPUJob(int job_id, int priority, int job_type,
+            int cpu_time_consumed, int memory_consumed);
+    ~CPUJob();
+    void display();
+  }; 
+
+  template <class DT> class Queue { 
+  public:     
+    DT* JobPointer;           // Pointer to a job (e.g., CPUJob)     
+    Queue<DT>* next;          // Pointer to the next node in the queue 
+  };  
+
+  template <class DT> class NovelQueue { 
+  public:   
+    Queue<DT>* front;         // Pointer to the front of the queue   
+    Queue<DT>** NodePtrs;     // Array of pointers to Queue nodes     
+    int size;                 // Number of elements in the queue) 
+
+    void enqueue(CPUJob* newJob);
+    CPUJob* dequeue();
+    void modify(int job_id, int new_priority, int new_job_type, 
+                  int new_cpu_time_consumed, int new_memory_consumed);  
+    void change(int job_id, int field_index, int new_value);     
+    void promote(int job_id, int positions);
+    NovelQueue<DT>* reorder(int attribute_index); 
+    void display();
+    int count();
+    void listJobs();
+  }; 
+  why would there be a queue class and a novel queue class?
+
 Response:
+  The presence of both [`Queue`]() and [`NovelQueue`]()
+  1. **Queue Class**:
+    - **Purpose**: Represents a single node in a queue.
+    - **Attributes**:
+      - [`JobPointer`](): Points to a job ()
+      - [`next`](): Points to the next node in the queue.
+    - **Usage**: Acts as a linked list node, holding a job and a reference to the next node.
+
+  2. **NovelQueue Class**:
+    - **Purpose**: Represents the entire queue and provides advanced queue operations.
+    - **Attributes**:
+      - [`front`](): Points to the front node of the queue.
+      - [`NodePtrs`](): An array of pointers to [`Queue`]() nodes, possibly for quick access or indexing.
+      - [`size`](): Keeps track of the number of elements in the queue.
+    - **Methods**:
+      - [`enqueue`](): Adds a new job to the queue.
+      - [`dequeue`](): Removes and returns a job from the front of the queue.
+      - [`modify`](): Modifies attributes of a job based on its ID.
+      - [`change`](): Changes a specific field of a job.
+      - [`promote`](): Promotes a job by a certain number of positions.
+      - [`reorder`](): Reorders the queue based on a specific attribute.
+      - [`display`](): Displays the queue.
+      - [`count`](): Returns the number of jobs in the queue.
+      - [`listJobs`](): Lists all jobs in the queue.
+
+  ### Summary
+  - **Queue**: Basic node structure for linked list implementation.
+  - **NovelQueue**: Advanced queue with additional functionalities and operations.
+
+  This design allows for modularity and separation of concerns, where () provides higher-level queue management and operations.
 
 Reason:
-
+  Double check my thoughts on why the queue class and novel queue class both exist (was thinking queue is for nodes), and also to
+  see if the chatbot could give any other starting insight into the use of these classes. It did, in the fact that it pointed out
+  that the array of queue pointers within novel queue can be used for constant time retrieval of jobs instead of o(n) if we had
+  to traverse the linkedlist every time. With this knowledge I should be able to get started on the project.
 ------------------------------------------------------------------------------
 
 Prompt:
