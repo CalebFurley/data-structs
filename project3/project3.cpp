@@ -6,16 +6,15 @@ using namespace std;
   Caleb Furley
 
   Project contains following sections:
-    1. Class Prototypes
-    2. CPU Job Implementation
-    3. Queue Implementation
-    4. NovelQueue Implementation
-    5. Testing Via Main
-    6. LLM Usage
-    7. Debug Plan
+    1. CPU Job: Definition & Implementation
+    2. Queue: Definition & Implementation
+    3. NovelQueue: Definition & Implementation
+    4. Testing Via Main()
+    5. LLM Usage Documentation
+    6. Debug Plan Documentation
 */
 
-/*********************** Class Prototypes ************************/
+/******************* CPUJob Definition & Implementation ********************/
 class CPUJob { 
 public:     
   int job_id;               // Unique identifier for the job     
@@ -24,26 +23,69 @@ public:
   int cpu_time_consumed;    // Total CPU time consumed by the job  
   int memory_consumed;      // Total memory consumed thus far 
 
+  CPUJob();
   CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, int memory_consumed);
   ~CPUJob();
   void display();
 }; 
 
+CPUJob::CPUJob()
+:job_id(0),priority(0),job_type(0),cpu_time_consumed(0),memory_consumed(0){}
+
+CPUJob::CPUJob(int job_id, int priority, int job_type, 
+                    int cpu_time_consumed, int memory_consumed) {
+  this->job_id = job_id;
+  this->priority = priority;
+  this->job_type = job_type;
+  this->cpu_time_consumed = cpu_time_consumed;
+  this->memory_consumed = memory_consumed;
+}
+
+CPUJob::~CPUJob(){}
+
+void CPUJob::display() {
+  cout << "Job ID: " << job_id << "," << "Priority: " << priority 
+  << "," << "Job Type: " << job_type << "," << "CPU Time Consumed: " 
+  << cpu_time_consumed << "," << "Memory Consumed: " << memory_consumed 
+  << endl;
+}
+
+/******************* Queue Definition & Implementation *********************/
+
 template <class DT> class Queue { 
 public:     
-  DT* JobPointer;           // Pointer to a job (e.g., CPUJob)     
-  Queue<DT>* next;          // Pointer to the next node in the queue 
+  DT* _JobPointer;           // Pointer to a job (e.g., CPUJob)     
+  Queue<DT>* _next;          // Pointer to the next node in the queue 
 
+  Queue();
   Queue(DT* JobPointer, Queue<DT>* next);
   ~Queue();
 };  
 
+template <class DT>
+Queue<DT>::Queue() : _JobPointer(nullptr), _next(nullptr) {}
+
+template <class DT>
+Queue<DT>::Queue(DT* JobPointer, Queue<DT>* next) {
+  this->_JobPointer = JobPointer;
+  this->_next = next;
+}
+
+template <class DT>
+Queue<DT>::~Queue() {
+  delete _JobPointer;
+  //delete _next, will delete all nodes,be careful
+    //set prevQueue _next to this_next? <---------------------CHECKTHIS
+}
+
+/**************** NovelQueue Definition & Implementation *******************/
+
 template <class DT> class NovelQueue { 
 public:   
-  Queue<DT>* front;         // Pointer to the front of the queue
-  Queue<DT>* rear;          // Pointer to the rear of the queue   
-  Queue<DT>** NodePtrs;     // Array of pointers to Queue nodes     
-  int size;                 // Number of elements in the queue) 
+  Queue<DT>* _front;         // Pointer to the front of the queue
+  Queue<DT>* _rear;          // Pointer to the rear of the queue   
+  Queue<DT>** _NodePtrs;     // Array of pointers to Queue nodes     
+  int size;                  // Number of elements in the queue) 
 
   NovelQueue();
   ~NovelQueue();
@@ -59,32 +101,6 @@ public:
   void listJobs();
 }; 
 
-/********************* CPUJob Implementation ***********************/
-CPUJob::CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, int memory_consumed) 
-: job_id(job_id), priority(priority), job_type(job_type), cpu_time_consumed(cpu_time_consumed), memory_consumed(memory_consumed) {}
-
-CPUJob::~CPUJob() {}
-
-void CPUJob::display() {
-  cout << "Job ID: " << job_id << "," << "Priority: " << priority 
-  << "," << "Job Type: " << job_type << "," << "CPU Time Consumed: " 
-  << cpu_time_consumed << "," << "Memory Consumed: " << memory_consumed 
-  << endl;
-}
-
-/********************** Queue Implementation ***********************/
-template <class DT>
-Queue<DT>::Queue(DT* jobPointer, Queue<DT>* next) {
-  //TODO implement this function..
-}
-
-template <class DT>
-Queue<DT>::~Queue() {
-  //TODO implement this function..
-}
-
-/******************** NovelQueue Implementation ********************/
-
 template <class DT>
 NovelQueue<DT>::NovelQueue() {
   //TODO implement this function..
@@ -92,17 +108,28 @@ NovelQueue<DT>::NovelQueue() {
 
 template <class DT>
 NovelQueue<DT>::~NovelQueue() {
-  //TODO implement this function..
+  Queue<DT>* current = _front;
+  while (current != nullptr) { //delete all the nodes
+    Queue<DT>* tempNext = current->_next;
+    delete current;
+    current = tempNext;
+  }
+  delete[] _NodePtrs; //delete pointers to all the nodes
+  _front = nullptr;
+  _rear = nullptr;
+  _NodePtrs = nullptr;
 }
 
 // Adds a new job to the rear of the queue.
 template <class DT>
 void NovelQueue<DT>::enqueue(CPUJob* newJob) {
-  Queue<CPUJob>* oldRear = this->rear;
-  Queue<CPUJob>* newRear = new Queue<CPUJob>(newJob, oldRear)
-  this->rear = newRear;
+  Queue<CPUJob>* oldRear = this->_rear;
+  Queue<CPUJob>* newRear = new Queue<CPUJob>(newJob, oldRear);
+  this->_rear = newRear;
   oldRear = nullptr;
   newRear = nullptr;
+
+  //need to update the nodePtrs* array //<----------------------FIXTHIS
 }
 
 template <class DT>
@@ -148,7 +175,7 @@ void NovelQueue<DT>::listJobs() {
   //TODO Write this method..
 }
 
-/*********************** Testing Via Main **************************/
+/**************************** Testing Via Main *****************************/
 int main() {
   int n;  // Number of commands
   cin >> n;  // Read the number of commands
@@ -237,8 +264,8 @@ int main() {
   return 0; 
 }
 
-/*************************** LLM Usage *****************************/
+/************************ LLM Usage Documenation ***************************/
 //paste llm usage txt file here..
 
-/************************** Debug Plan *****************************/
+/*********************** Debug Plan Documentation **************************/
 //paste debug plan txt file here..

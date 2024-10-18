@@ -79,18 +79,121 @@ Reason:
 ------------------------------------------------------------------------------
 
 Prompt:
+  template <class DT>
+  NovelQueue<DT>::~NovelQueue() {
+    delete _front;
+    delete _rear;
+    for (Queue<DT> node : _NodePtrs) { //delete all nodes
+      delete node;
+      node = nullptr;
+    } 
+    delete _NodePtrs; //delete pointers to all the nodes
+    _front = nullptr;
+    _rear = nullptr;
+    _NodePtrs = nullptr;
+  }
+
+  does this methodology look good?
 
 Response:
+  There are a few issues with the destructor implementation:
+
+1. **Deleting [`_front`]() directly**: If [`_front`]() is incorrect. It should be a pointer to a pointer.
+3. **Deleting [`_NodePtrs`]()**: [`_NodePtrs`]() is an array of pointers, so it should be deleted using `delete[]`.
+
+Here's a revised version:
+
+  ```cpp
+  template <class DT>
+  NovelQueue<DT>::~NovelQueue() {
+    // Delete all nodes in the linked list
+    Queue<DT>* current = _front;
+    while (current != nullptr) {
+      Queue<DT>* next = current->next;
+      delete current;
+      current = next;
+    }
+
+    // Delete the array of node pointers
+    if (_NodePtrs != nullptr) {
+      for (int i = 0; i < size; ++i) {
+        delete _NodePtrs[i];
+        _NodePtrs[i] = nullptr;
+      }
+      delete[] _NodePtrs;
+      _NodePtrs = nullptr;
+    }
+
+    _front = nullptr;
+    _rear = nullptr;
+  }
+  ```
+
+  ### Changes Made:
+  1. **Iterate through the linked list**: Properly delete all nodes in the linked list starting from [`_front`]().
+  2. **Correct iteration over [`_NodePtrs`]().
+  3. **Use `delete[]` for [`_NodePtrs`]() is an array, use `delete[]` to delete it.
+
+  This ensures that all dynamically allocated memory is properly freed.
 
 Reason:
-
+  Wanted to check the destructor and make sure the smaller functions needed 
+  are implemented correctly and quickly so I can move onto the NoveQueue and
+  main() and get working on the main portion of the project.
 ------------------------------------------------------------------------------
 
 Prompt:
+  template <class DT>
+  NovelQueue<DT>::~NovelQueue() {
+    Queue<DT>* current = _front;
+    while (current != nullptr) { //delete all the nodes
+      Queue<DT>* tempNext = current->_next;
+      delete current;
+      current = tempNext;
+    }
+    delete[] _NodePtrs; //delete pointers to all the nodes
+    _front = nullptr;
+    _rear = nullptr;
+    _NodePtrs = nullptr;
+  }
 
+
+  double checking, this look good>
 Response:
+  The destructor implementation looks good overall. It correctly deletes all nodes in the linked list and then deletes the array of node pointers. Here is a quick review and confirmation:
+
+  1. **Deleting Nodes**: The loop correctly iterates through the linked list, deleting each node.
+  2. **Deleting Node Pointers Array**: The `delete[] _NodePtrs` statement correctly deletes the array of node pointers.
+  3. **Nullifying Pointers**: Setting [`_front`](), [`_rear`](), and [`_NodePtrs`]() to [`nullptr`]() ensures that the pointers are nullified after deletion.
+
+  Here is the code again for confirmation:
+
+  ```cpp
+  template <class DT>
+  NovelQueue<DT>::~NovelQueue() {
+    Queue<DT>* current = _front;
+    while (current != nullptr) { // delete all the nodes
+      Queue<DT>* tempNext = current->_next;
+      delete current;
+      current = tempNext;
+    }
+    delete[] _NodePtrs; // delete pointers to all the nodes
+    _front = nullptr;
+    _rear = nullptr;
+    _NodePtrs = nullptr;
+  }
+  ```
+
+  ### Summary
+  - **Loop through the linked list**: Correctly deletes each node.
+  - **Delete the array of node pointers**: Correctly deletes the array.
+  - **Nullify pointers**: Ensures pointers are set to [`nullptr`]() after deletion.
+
+  This destructor implementation is correct and should work as intended.
 
 Reason:
+  Double checking the way I implemented what was suggested in the previous copilot
+  suggesstion.
 
 ------------------------------------------------------------------------------
 
