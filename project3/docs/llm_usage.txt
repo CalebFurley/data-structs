@@ -198,6 +198,86 @@ Reason:
 ------------------------------------------------------------------------------
 
 Prompt:
+  template <class DT>
+  NovelQueue<DT>::NovelQueue() {
+    //implement this..
+  }
+
+
+  what size should set _NodePtrs too inside this constructor?
+Response:
+  The size of `_NodePtrs` should be initialized to a reasonable default value, typically zero, since the queue is initially empty. You can dynamically allocate the array as needed when elements are added to the queue.
+
+  Here's the implementation of the constructor:
+
+  ```cpp
+  template <class DT>
+  NovelQueue<DT>::NovelQueue() : _front(nullptr), _rear(nullptr), _NodePtrs(nullptr), size(0) {
+    // Initially, the queue is empty, so _NodePtrs is set to nullptr and size is set to 0.
+  }
+  ```
+
+  ### Explanation:
+  - **`_front` and `_rear`**: Initialized to `nullptr` because the queue is empty.
+  - **`_NodePtrs`**: Initialized to `nullptr` because there are no nodes in the queue initially.
+  - **`size`**: Initialized to `0` because the queue is empty.
+
+  This ensures that the queue starts in a consistent and empty state. As elements are added to the queue, `_NodePtrs` can be dynamically allocated and resized accordingly.
+
+Reason:
+  Trying to figure out best size to allocate the _NodePtrs* array too. Personally
+  I figured I would need another constructor with a size (size being the number)
+  of commands passed (even though some commands will end before others start)
+  but this makes sure that the program doesnt run out of space in the job Queue
+  duing runtime. (if the nodepointers array wasnt needed this could be done 
+  dynamically much easier, I dont want to need to change the array size throughout
+  the program so I'm just going to make another constructor that is the size of the
+  number of commands and call it good.)
+------------------------------------------------------------------------------
+
+Prompt:
+  template <class DT>
+  NovelQueue<DT>::NovelQueue(int size) {
+    _NodePtrs = new Queue<DT>(n)
+  }
+  is this correct to make an array of queue pointers of size n
+Response:
+  The provided code snippet has a few issues:
+  1. The parameter name should be [`size`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A110%2C%22character%22%3A31%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition") instead of [`n`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A111%2C%22character%22%3A28%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition").
+  2. The syntax for creating an array of pointers is incorrect.
+  3. The constructor should initialize `_front` and `_rear` to `nullptr`.
+
+  Here is the corrected version:
+
+  ```cpp
+  template <class DT>
+  NovelQueue<DT>::NovelQueue(int size) : _front(nullptr), _rear(nullptr), size(size) {
+    _NodePtrs = new Queue<DT>*[size];
+    for (int i = 0; i < size; ++i) {
+      _NodePtrs[i] = nullptr;
+    }
+  }
+  ```
+
+  ### Explanation:
+  - **Initialization List**: Initializes `_front`, `_rear`, and [`size`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A110%2C%22character%22%3A31%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition").
+  - **Array Allocation**: Allocates an array of [`Queue<DT>*`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A111%2C%22character%22%3A18%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition") of the given [`size`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A110%2C%22character%22%3A31%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition").
+  - **Null Initialization**: Initializes each element of [`_NodePtrs`](command:_github.copilot.openSymbolFromReferences?%5B%22%22%2C%5B%7B%22uri%22%3A%7B%22scheme%22%3A%22file%22%2C%22authority%22%3A%22%22%2C%22path%22%3A%22%2Fhome%2Fcaleb%2FDevelopment%2Fsource%2Fdata-structs%2Fproject3%2Fproject3.cpp%22%2C%22query%22%3A%22%22%2C%22fragment%22%3A%22%22%7D%2C%22pos%22%3A%7B%22line%22%3A111%2C%22character%22%3A2%7D%7D%5D%2C%229649689a-12c5-4205-ace3-7b95367ba2f9%22%5D "Go to definition") to `nullptr`.
+
+Reason:
+  Making sure the method is correct, it suggested to loop through and set all
+  the pointers to null so thats what I will do.
+------------------------------------------------------------------------------
+
+Prompt:
+
+Response:
+
+Reason:
+
+------------------------------------------------------------------------------
+
+Prompt:
 
 Response:
 

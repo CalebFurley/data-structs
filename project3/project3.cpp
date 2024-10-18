@@ -24,7 +24,8 @@ public:
   int memory_consumed;      // Total memory consumed thus far 
 
   CPUJob();
-  CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, int memory_consumed);
+  CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, 
+    int memory_consumed);
   ~CPUJob();
   void display();
 }; 
@@ -74,8 +75,7 @@ Queue<DT>::Queue(DT* JobPointer, Queue<DT>* next) {
 template <class DT>
 Queue<DT>::~Queue() {
   delete _JobPointer;
-  //delete _next, will delete all nodes,be careful
-    //set prevQueue _next to this_next? <---------------------CHECKTHIS
+  //NovelQueue deletes nodes.
 }
 
 /**************** NovelQueue Definition & Implementation *******************/
@@ -88,11 +88,13 @@ public:
   int size;                  // Number of elements in the queue) 
 
   NovelQueue();
+  NovelQueue(int size);
   ~NovelQueue();
 
   void enqueue(CPUJob* newJob);
   CPUJob* dequeue();
-  void modify(int job_id, int new_priority, int new_job_type, int new_cpu_time_consumed, int new_memory_consumed);  
+  void modify(int job_id, int new_priority, int new_job_type, 
+                int new_cpu_time_consumed, int new_memory_consumed);  
   void change(int job_id, int field_index, int new_value);     
   void promote(int job_id, int positions);
   NovelQueue<DT>* reorder(int attribute_index); 
@@ -102,8 +104,16 @@ public:
 }; 
 
 template <class DT>
-NovelQueue<DT>::NovelQueue() {
-  //TODO implement this function..
+NovelQueue<DT>::NovelQueue() 
+: _front(nullptr), _rear(nullptr), _NodePtrs(nullmptr) {}
+
+template <class DT>
+NovelQueue<DT>::NovelQueue(int size) {
+  _NodePtrs = new Queue<DT>[size];
+  for (int i=0; i < size; ++i)
+    _NodePtrs[i] = nullptr;
+  _front = _NodePtrs[0];
+  _rear = _NodePtrs[size-1];
 }
 
 template <class DT>
@@ -120,7 +130,7 @@ NovelQueue<DT>::~NovelQueue() {
   _NodePtrs = nullptr;
 }
 
-// Adds a new job to the rear of the queue.
+// Adds a new job to the rear of the queue./////////////////////STARTHERE
 template <class DT>
 void NovelQueue<DT>::enqueue(CPUJob* newJob) {
   Queue<CPUJob>* oldRear = this->_rear;
@@ -128,7 +138,6 @@ void NovelQueue<DT>::enqueue(CPUJob* newJob) {
   this->_rear = newRear;
   oldRear = nullptr;
   newRear = nullptr;
-
   //need to update the nodePtrs* array //<----------------------FIXTHIS
 }
 
@@ -139,8 +148,9 @@ CPUJob *NovelQueue<DT>::dequeue() {
 }
 
 template <class DT>
-void NovelQueue<DT>::modify(int job_id, int new_priority, int new_job_type, int new_cpu_time_consumed, int new_memory_consumed) {
-    //TODO Write this method..
+void NovelQueue<DT>::modify(int job_id, int new_priority, int new_job_type, 
+                    int new_cpu_time_consumed, int new_memory_consumed) {
+  //TODO Write this method..
 }
 
 template <class DT>
@@ -181,7 +191,7 @@ int main() {
   cin >> n;  // Read the number of commands
 
   // Instantiate a NovelQueue for CPUJob pointers
-  NovelQueue<CPUJob*>* myNovelQueue = new NovelQueue<CPUJob*>();
+  NovelQueue<CPUJob*>* myNovelQueue = new NovelQueue<CPUJob*>(n);
   char command;  // Variable to store the command type
   
   // Variables for job attributes     
