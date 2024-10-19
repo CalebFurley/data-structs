@@ -53,8 +53,9 @@ void CPUJob::display() {
 
 /******************* Queue Definition & Implementation *********************/
 
-template <class DT> class Queue { 
-public:     
+template <class DT> 
+class Queue { 
+public: 
   DT* _JobPointer;           // Pointer to a job (e.g., CPUJob)     
   Queue<DT>* _next;          // Pointer to the next node in the queue 
 
@@ -80,15 +81,15 @@ Queue<DT>::~Queue() {
 
 /**************** NovelQueue Definition & Implementation *******************/
 
-template <class DT> class NovelQueue { 
+template <class DT> 
+class NovelQueue { 
 public:   
   Queue<DT>* _front;         // Pointer to the front of the queue
   Queue<DT>* _rear;          // Pointer to the rear of the queue   
   Queue<DT>** _NodePtrs;     // Array of pointers to Queue nodes     
-  int size;                  // Number of elements in the queue) 
+  int _size;                 // Number of elements in the queue) 
 
   NovelQueue();
-  NovelQueue(int size);
   ~NovelQueue();
 
   void enqueue(CPUJob* newJob);
@@ -104,16 +105,10 @@ public:
 }; 
 
 template <class DT>
-NovelQueue<DT>::NovelQueue() 
-: _front(nullptr), _rear(nullptr), _NodePtrs(nullmptr) {}
-
-template <class DT>
-NovelQueue<DT>::NovelQueue(int size) {
-  _NodePtrs = new Queue<DT>[size];
-  for (int i=0; i < size; ++i)
-    _NodePtrs[i] = nullptr;
-  _front = _NodePtrs[0];
-  _rear = _NodePtrs[size-1];
+NovelQueue<DT>::NovelQueue() {
+  _NodePtrs = new Queue<DT>*[0];
+  _front = nullptr;
+  _rear = nullptr;
 }
 
 template <class DT>
@@ -130,20 +125,14 @@ NovelQueue<DT>::~NovelQueue() {
   _NodePtrs = nullptr;
 }
 
-// Adds a new job to the rear of the queue./////////////////////STARTHERE
 template <class DT>
 void NovelQueue<DT>::enqueue(CPUJob* newJob) {
-  Queue<CPUJob>* oldRear = this->_rear;
-  Queue<CPUJob>* newRear = new Queue<CPUJob>(newJob, oldRear);
-  this->_rear = newRear;
-  oldRear = nullptr;
-  newRear = nullptr;
-  //need to update the nodePtrs* array //<----------------------FIXTHIS
+  //TODO Write this method..
 }
 
 template <class DT>
 CPUJob *NovelQueue<DT>::dequeue() {
-  //TODO write this method
+  //TODO Write this method
   return nullptr;
 }
 
@@ -191,7 +180,7 @@ int main() {
   cin >> n;  // Read the number of commands
 
   // Instantiate a NovelQueue for CPUJob pointers
-  NovelQueue<CPUJob*>* myNovelQueue = new NovelQueue<CPUJob*>(n);
+  NovelQueue<CPUJob*>* myNovelQueue = new NovelQueue<CPUJob*>();
   char command;  // Variable to store the command type
   
   // Variables for job attributes     
