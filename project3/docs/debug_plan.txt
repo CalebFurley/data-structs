@@ -6,6 +6,15 @@ Specific Tests:
   cin readings then compiled and ran the program to make sure the input was being
   read correctly.
 
+  A very large bug I encounted was with writing the display() method. This method
+  kept throwing segmentation faults and not even copilot was able to figure it out.
+  It was because the main method instantiates the NovelQueue with CPUJob*
+  as the data type, wchich makes the Queue<DT> a Queue<CPUJob*> so if I access
+  a Queue<CPUJob*>->_JobPointer is does not work. I tried derfrening the queue
+  then pointing to job pointer, and literally anything else you can imagine.
+  I did not want to change the core starting code of the project but this bug
+  was taking hours to resolve.
+
 Issues and Resolutions:
   Explain specific issues and their resolutions
 
