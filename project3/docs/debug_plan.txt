@@ -2,23 +2,86 @@ Specific Tests:
   Describe the specific test you conducted
     ex: how did you test that the foo() method worked correctly?
 
-  Initially, I placed statements behind the number of commands and command type
-  cin readings then compiled and ran the program to make sure the input was being
-  read correctly.
+  The main way the program was tested was simply matching the output to the output
+  given via the text documents that came along with the project.
 
-  A very large bug I encounted was with writing the display() method. This method
+  On this project in particular, I also gave my code off to copilot after writing certain
+  methods and just had copilot look over it and give suggestions on improvement, have it catch
+  bugs etc, basically using it like a smarter version of the gcc compiler.
+
+  Not too much print statement debugging was done on this project, I did utilize the mini-boxes
+  that come with vscode that show the params and variable types to help try and resolve issues
+  I was having with the types of vairables being passed, accessed, and returned. Type errors
+  were probably the number one issue encountered during this project and halted development 
+  quite a bit leading to more LLM usage in the end.
+
+Issues and Resolutions:
+  One bug I encounted was with writing the display() method. This method
   kept throwing segmentation faults and not even copilot was able to figure it out.
   It was because the main method instantiates the NovelQueue with CPUJob*
   as the data type, wchich makes the Queue<DT> a Queue<CPUJob*> so if I access
-  a Queue<CPUJob*>->_JobPointer is does not work. I tried derfrening the queue
+  a Queue<CPUJob*>->_JobPointer is does not work. I tried derefrencing the queue
   then pointing to job pointer, and literally anything else you can imagine.
-  I did not want to change the core starting code of the project but this bug
-  was taking hours to resolve.
+  
+    ^^ Eventually to resolve the issure mentioned above issue I turned to copilot looking through the 
+    ^^ codebase and finding a solution that would store and use the pointers and variables correctly.
+  
+  Another error encountered was a double deletion error when deleting the myNovelQueue
+  object at the end of main. I figured this had to do with the destructors of the classes
+  maybe trying to double delete something that a previous destructor had taken care of.
 
-Issues and Resolutions:
-  Explain specific issues and their resolutions
+    ^^ After trying to use copilot to look over the error a bit, I decided to do it manually since
+    ^^ copilot could not figure it out. I started by commenting out the code within the NoveQueue destructor
+    ^^ to try and qurantine the error.
+
+    ^^ Once commenting out and confirming the NovelQueue destructor was the problem, I commented
+    ^^ out each line of code individually and stepped through the program to see what was throwing
+    ^^ the core dump double deletion error.
+
+    ^^ pretty quickly realized that by calling delete nodePtrs[] triggers the destructors
+    ^^ of the queues which trigger destructors on the jobs which are deleted immidiatly above
+    ^^ so commented out that line of code to fix the error.
+
+  Another bug encountered was that the reorder method was causing the job_id of the jobs to
+  be larger negative numbers after going through that method. To fix this I started by trying
+  to have copilot help and debug.
+  
+    ^^ Eventually copilot was able to fix the negative numbers errors, I figured and told it
+    ^^ that it was likely do to how a copy of the novel queue was being made and returned then
+    ^^ deleted in main but was not properly allocating the reordered array back to the original
+    ^^ novel queue.
+
+    ^^ once that was fixed I noticed that the reorder method was ordering the elements incorrectly
+    ^^ so I decided to look through the method closer and try to find the issue. First thing I did
+    ^^ was have cpoilot update the bubble sort to insertion sort.
+
+    ^^ After some more debugging alonside copilot, was able to get a proper copy of the reordered
+    ^^ novel queue returned and sorted correctly.
+
+  Another bug to be resolved was with the listJobs() method listing the jobs just based on
+  their order in the queue and not actually based on their job_id. I simply asked copilot to
+  fix it and it used the helper sorting function used in reorder to just reorder the queue then
+  print it.
+
+  The final error encountered was noticed when running the program on the input2 and input3
+  files. There was a malloc() error happening from calls to enqueue.
+
+    ^^ After working with copilot and looking through the output in the console vs the given
+    ^^ files. I noticed there needs to be a debug statement if trying to add a job with an id
+    ^^ that matches another job in the queue.
+  
+  Finally Finally, the free memory double deletion error started happening again so I
+  tracked that down like I did before and resolved the issue.
 
 Verification:
-  Explain how you verified that your calsses work correctly.
-    ex: unit testing (asserts)
-    ex: main() method testing
+ For verification of the code working properly I used the output generated when running
+ the program and compared it to the output in the files that were given for the project.
+
+ In addition I also gave code in bits to copilot to have it review the code for errors or
+ different ways to implement the specific methods.
+
+ And lastly I use the unit test provided on gradescope to make sure the code runs properly
+ and passed all test.
+
+ In the future I would like to write Exceptions and unit tests for the projects and practice
+ that part of development as well.
