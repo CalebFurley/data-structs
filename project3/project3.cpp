@@ -98,7 +98,7 @@ public:
   DT* dequeue();
   void modify(int job_id, int new_priority, int new_job_type, 
                 int new_cpu_time_consumed, int new_memory_consumed);  
-  void change(int job_id, int field_index, int new_value);     
+  bool change(int job_id, int field_index, int new_value);     
   void promote(int job_id, int positions);
   NovelQueue<DT>* reorder(int attribute_index); 
   void display();
@@ -211,7 +211,7 @@ void NovelQueue<DT>::modify(int job_id, int new_priority, int new_job_type,
 
 // Changes a single attribute of a certain job in the queue.
 template <class DT>
-void NovelQueue<DT>::change(int job_id, int field_index, int new_value) {
+bool NovelQueue<DT>::change(int job_id, int field_index, int new_value) {
   bool jobFound = false;
   for (int i = 0; i < size; ++i) {
     if (nodePtrs[i]->jobPointer->job_id == job_id) {
@@ -236,8 +236,10 @@ void NovelQueue<DT>::change(int job_id, int field_index, int new_value) {
     }
   }
   if (!jobFound) {
-    cout << "Job ID " << job_id << " not found in the queue." << endl;
+    cout << "Job with ID " << job_id << " not found in the queue." << endl;
+    return false;
   }
+  return true;
 }
 
 // Promotes a job to a higher position in the queue.
@@ -331,6 +333,7 @@ NovelQueue<DT>* NovelQueue<DT>::reorder(int attribute_index) {
   // Enqueue the sorted jobs into the new queue
   for (int i = 0; i < size; ++i) {
     reorderedQueue->enqueue(new DT(*jobsArray[i])); // Deep copy the job
+    this->nodePtrs[i]->jobPointer = (new DT(*jobsArray[i])); // deep copy in place too
   }
 
   delete[] jobsArray;
@@ -352,7 +355,6 @@ void NovelQueue<DT>::customSort(DT** array, int size, bool (*compare)(DT*, DT*))
     array[j + 1] = key;
   }
 }
-
 // Displays all the jobs in the queue.
 template <class DT>
 void NovelQueue<DT>::display() {
@@ -419,9 +421,10 @@ int main() {
         cin >> cpu_time_consumed >> memory_consumed;                 
         CPUJob* newJob = new CPUJob(job_id, priority, job_type,      
         cpu_time_consumed, memory_consumed);
-        cout << "Enqueued Job: " << endl;
-         newJob->display();
+
         if (myNovelQueue->enqueue(newJob)) {
+          cout << "Enqueued Job: " << endl;
+          newJob->display();
           cout << "Jobs after enqueue:" << endl;
           myNovelQueue->display();
         } 
@@ -457,18 +460,21 @@ int main() {
       }             
       case 'C': {  // Change Job Values                 
         cin >> job_id >> field_index >> new_value;                 
-        myNovelQueue->change(job_id, field_index, new_value);    
-        cout << "Changed Job ID " << job_id << " field " << field_index << " to " << new_value << ":" << endl;
-        for (int i = 0; i < myNovelQueue->size; ++i) {
-          if (myNovelQueue->nodePtrs[i]->jobPointer->job_id == job_id) {
-            myNovelQueue->nodePtrs[i]->jobPointer->display();
-            break;
+        bool changed = myNovelQueue->change(job_id, field_index, new_value);    
+        if (changed) {
+          cout << "Changed Job ID " << job_id << " field " << field_index << " to " << new_value << ":" << endl;
+          for (int i = 0; i < myNovelQueue->size; ++i) {
+           if (myNovelQueue->nodePtrs[i]->jobPointer->job_id == job_id) {
+             myNovelQueue->nodePtrs[i]->jobPointer->display();
+             break;
+            }
+           
           }
         }
-        cout << "Jobs after changing field:" << endl;
-        myNovelQueue->display();
-        break;             
-      }             
+        if (changed) cout << "Jobs after changing field:" << endl;
+        if (changed) myNovelQueue->display();
+        break; 
+      }                   
       case 'P': {  // Promote                 
         cin >> job_id >> positions;                 
         myNovelQueue->promote(job_id, positions);                 
