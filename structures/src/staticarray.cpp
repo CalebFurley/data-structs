@@ -1,11 +1,11 @@
 #include <iostream>
-#include "../lib/concretes/staticarray.h"
+#include "../lib/StaticArray.h"
 
 //enumerate so can use (for:each)
 
 int main(int argc, char** argv) {
-  
-  StaticArray<int>* array = new StaticArray<int>(10); 
+
+  StaticArray<int>* array = new StaticArray<int>(10);
     //look into setting = {} to init with values.
   
   //fill array with multiples of five

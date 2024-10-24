@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../lib/concretes/linkedlist.h"
+#include "../lib/LinkedList.h"
 using std::cout;
 using std::endl;
 
