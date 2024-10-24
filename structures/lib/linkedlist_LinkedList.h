@@ -2,7 +2,7 @@
 #define LINKEDLIST_H
 
 #include <iostream>
-#include "exception.h"
+#include "Exception.h"
 using std::ostream;
 
 class LinkedListException : public Exception {};

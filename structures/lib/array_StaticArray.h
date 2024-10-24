@@ -2,7 +2,7 @@
 #define StaticArray_H
 
 #include <iostream>
-#include "../abstracts/abs_arrayclass.h"
+#include "abs_ArrayClass.h"
 
 template <class DT>
 class StaticArray : virtual public AbstractArrayClass<DT> {

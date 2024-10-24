@@ -1,7 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include "exception.h"
+#include "Exception.h"
 #include <iostream>
 using std::ostream;
 

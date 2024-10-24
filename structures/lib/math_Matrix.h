@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include <iostream>
-#include "exception.h"
+#include "Exception.h"
 using std::ostream;
 
 class MatrixException : public Exception {};

@@ -2,7 +2,7 @@
 #define QUEUE_H
 
 #include <iostream>
-#include "exception.h"
+#include "Exception.h"
 using std::ostream;
 
 class QueueException : public Exception {};

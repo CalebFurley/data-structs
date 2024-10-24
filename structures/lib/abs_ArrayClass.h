@@ -1,7 +1,7 @@
 #ifndef ABS_ARRAYCLASS_H
 #define ABS_ARRAYCLASS_H
 
-#include "exception.h"
+#include "Exception.h"
 
 class ArrayException : public Exception {};
 class ArrayMemoryException : public ArrayException {};
