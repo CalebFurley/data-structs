@@ -1,9 +1,8 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef MATH_MATRIX_H
+#define MATH_MATRIX_H
 
 #include <iostream>
-#include "Exception.h"
-using std::ostream;
+#include "abs_Exception.h"
 
 class MatrixException : public Exception {};
 //define other exceptions

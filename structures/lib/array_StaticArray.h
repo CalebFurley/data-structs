@@ -1,5 +1,10 @@
-#ifndef StaticArray_H
-#define StaticArray_H
+#ifndef ARRAY_STATICARRAY_H
+#define ARRAY_STATICARRAY_H
+
+/** TODO For this class
+ * test the class and implement exceptions
+ * where necessary.
+ */
 
 #include <iostream>
 #include "abs_ArrayClass.h"
@@ -9,23 +14,17 @@ class StaticArray : virtual public AbstractArrayClass<DT> {
 protected:
   int _size;
   DT* _data;
-
 public:
-  //Constructors
   StaticArray();
   StaticArray(int size);
   StaticArray(const StaticArray& other);
   ~StaticArray();
-
-  //Accessors
   int size () const;
-
-  //Operators
   DT& operator [] (int index);
   DT& operator [] (int index) const;
   StaticArray<DT>& operator = (const StaticArray& other);
   template<class U>
-  friend std::ostream& operator << (std::ostream& s, const StaticArray<DT>& ac);
+  friend std::ostream& operator << (std::ostream& os, const StaticArray<DT>& object);
 };
 
 template <class DT>
@@ -78,7 +77,7 @@ StaticArray<DT>& StaticArray<DT>::operator = (const StaticArray &other) {
 }
 
 template <class U>
-std::ostream& operator << (std::ostream& s, const StaticArray<U>& ac) {
+std::ostream& operator << (std::ostream& os, const StaticArray<U>& object) {
   s << "[";
   for (int i=0; i<ac.size()-2; ++i)
     s << ac[i] << ", ";

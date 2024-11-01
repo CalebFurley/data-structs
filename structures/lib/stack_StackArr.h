@@ -1,9 +1,16 @@
-#ifndef STACK_H
-#define STACK_H
+#ifndef STACK_STACKARR_H
+#define STACK_STACKARR_H
 
-#include<iostream>
-#include "Exception.h"
-using std::ostream;
+
+/** TODO For this class
+ * write the abstract for this class then
+ * make this class inherit from it.
+ * 
+ * then implement this class.
+ */
+
+#include <iostream>
+#include "abs_Exception.h"
 
 class StackException : public Exception {};
 class StackOverflow : public StackException {};
@@ -39,7 +46,7 @@ public:
   //Operators
   Stack<DT>& operator = (const Stack<DT>& other);//asignment deep copy.
   template<class U>
-  friend ostream& operator << (ostream& stream, Stack<U> self); //print.
+  friend std::ostream& operator << (std::ostream& stream, Stack<U> self); //print.
 };
 
 #endif

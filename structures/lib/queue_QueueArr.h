@@ -1,9 +1,16 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef QUEUE_QUEUEARR_H
+#define QUEUE_QUEUEARR_H
+
+
+/** TODO For this class
+ * write a abstractqueueclass then make this class 
+ * inherit from it.
+ * 
+ * then implement the QueueArr class here..
+ */
 
 #include <iostream>
-#include "Exception.h"
-using std::ostream;
+#include "abs_Exception.h"
 
 class QueueException : public Exception {};
 class QueueOverflow : public QueueException {};
@@ -13,7 +20,7 @@ class QueueMemomry : public QueueException {};
 //implement exceptions throughout class
 
 template <class DT>
-class Queue {
+class QueueArr {
 protected:
   int _front; //points to front of queue
   int _rear; //points to end of queue
@@ -33,12 +40,12 @@ public:
   int max() const; //returns the max size of the queue
 
   //Mutators
-  void enqueue(DT& object);
-  DT& dequeue();
+  void enqueue(DT& object); //enqueues to the rear of the list.
+  DT& dequeue(); //dequeues from the front of the list.
 
   //Operators
   template <class U>
-  friend ostream& operator << (ostream& stream, const Queue<U>& object);
+  friend std::ostream& operator << (ostd::stream& stream, const Queue<U>& object);
 };
 
 #endif

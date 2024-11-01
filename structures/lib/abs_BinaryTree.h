@@ -1,6 +1,10 @@
 #ifndef ABS_BINARYTREE_H
 #define ABS_BINARYTREE_H
 
-//write out the abstract class here
+#include "abs_BinaryTreeAccess.h"
+
+class AbstractBinaryTree : AbstractBinaryTreeAccess {
+  
+};
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef ABS_EXCEPTION_H
+#define ABS_EXCEPTION_H
 
 class Exception {};
 

@@ -1,15 +1,21 @@
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
+#ifndef LINKEDLIST_LINKEDLIST_H
+#define LINKEDLIST_LINKEDLIST_H
+
+/** TODO For this class
+ * finish the abstract linkedlistclass then
+ * make this class inherit from it.
+ * 
+ * test the class and implement exceptions
+ * where necessary.
+ */
 
 #include <iostream>
-#include "Exception.h"
-using std::ostream;
+#include "abs_Exception.h"
 
 class LinkedListException : public Exception {};
 class LinkedListMemory : public LinkedListException {};
 class LinkedListBounds : public LinkedListException {};
 //define other exceptions
-//implement exceptions throughout class
 
 template <class DT>
 class LinkedList {
@@ -18,29 +24,23 @@ protected:
   LinkedList<DT>* _next; //points to next node.
 
 public:
-  //Constructors
   LinkedList(); //default constructor.
   LinkedList(DT& info); //constructs new node with info.
   LinkedList(const LinkedList<DT>& other);//copy constructor.
   ~LinkedList(); //destructor, cool implementation.
 
-  //ErrorChecks
-  bool isEmpty() const;
-
-  //Accessors
+  bool isEmpty() const; //returns true if list if empty, false otherwise.
   int size() const; //calculates and returns size of list.
   DT infoAt(int position) const; //returns info at given position.
   int find(const DT& info) const; //returns index of given info.
 
-  //Mutators
   void add(const DT& info); //adds new node with given info to current position.
   void insertAt(const DT& info, int position); //adds new node to given position.
   void remove(int position); //remove node from given position.
 
-  //Operators
   LinkedList<DT>* operator = (const LinkedList<DT>& other); //asignment deep-copy.
   template<class U>
-  friend ostream& operator << (ostream& stream, LinkedList<U> list); //print.
+  friend std::ostream& operator << (std::ostream& stream, LinkedList<U> list); //prints to output.
 };
 
 template<class DT>
@@ -127,12 +127,12 @@ void LinkedList<DT>::remove(int position) {
 
 template<class DT>
 LinkedList<DT>* LinkedList<DT>::operator=(const LinkedList<DT>& other) {
-  return nullptr;
+  return nullptr; //TODO implement this method.
 }
 
 template<class U>
-ostream& operator << (ostream& stream, LinkedList<U> list) {
-  return stream;
+std::ostream& operator << (std::ostream& stream, LinkedList<U> list) {
+  return stream; //TODO implement this method.
 }
 
 #endif

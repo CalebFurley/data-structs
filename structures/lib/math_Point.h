@@ -1,9 +1,15 @@
-#ifndef POINT_H
-#define POINT_H
+#ifndef MATH_POINT_H
+#define MATH_POINT_H
 
-#include "Exception.h"
+/** TODO For this class
+ * implement constructor that accepts unlimited arguments
+ * then make a vector to hold the deminsions of the point.
+ * 
+ * also check for and implement error checking.
+ */
+
+#include "abs_Exception.h"
 #include <iostream>
-using std::ostream;
 
 class PointException : public Exception {};
 
@@ -23,7 +29,7 @@ public:
   Point<DT>& operator / (const Point<DT>& other);
   Point<DT>& operator = (const Point<DT>& other);
   template <class U>
-  friend ostream& operator << (ostream& s, const Point<U>& p);
+  friend std::ostream& operator << (std::ostream& s, const Point<U>& p);
 };
 
 template <class DT>
@@ -82,7 +88,7 @@ Point<DT>& Point<DT>::operator = (const Point<DT>& other) {
 }
 
 template <class U>
-ostream& operator << (ostream& s, const Point<U>& p) {
+std::ostream& operator << (std::ostream& s, const Point<U>& p) {
   s << "(" << p._x << "," << p._y << ")";
   return s;
 }
