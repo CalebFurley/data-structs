@@ -1,0 +1,12 @@
+Specific Tests:
+  The first tests performmed on the program where outputing the input gathered when
+  building the vector and getting the number of commands for the main loop of the
+  program.
+    This was completed to make sure (and was able to find a fix) bugs around how input
+    is being read into the program and make sure there is a solid foundation before
+    jumping into the main part of the program.
+
+Issues and Resolutions:
+  // the specfic issues(bugs) and how they were resolved.
+Verification:
+  // how the program was eventually verified to be working correctly.
