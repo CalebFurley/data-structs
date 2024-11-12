@@ -52,17 +52,25 @@ public:
 // Constructs a new node with M-1 values and M slots for children.
 template <class DT>
 MTree<DT>::MTree(int M) {
+  this->M = M;
+  this->values = new vector<DT>(M);
+  this->children = new vector<DT>(M);
 }
 
 // Destructor for tree nodes.
 template <class DT>
 MTree<DT>::~MTree() {
+  if (values != nullptr) delete this->values;
+  if (children != nullptr) delete this->children;
 }
 
 // Checks if the current node is a leaf.
 template <class DT>
 bool MTree<DT>::isLeaf() const {
-  return false;
+  for (int i = 0; i < M; ++i)
+    if (values[i] != 0)
+      return false;
+  return true;
 }
 
 // Splits a node, used for balancing the tree.
