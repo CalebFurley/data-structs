@@ -5,7 +5,9 @@ Specific Tests:
     This was completed to make sure (and was able to find a fix) bugs around how input
     is being read into the program and make sure there is a solid foundation before
     jumping into the main part of the program.
-
+  
+  The next tests were conducted on the buildTree method as it was the first method
+  to be implemented due to its call at the top of main. //***** TODO HERE ******//
 Issues and Resolutions:
   // the specfic issues(bugs) and how they were resolved.
 Verification:

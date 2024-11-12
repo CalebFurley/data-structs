@@ -38,68 +38,99 @@ public:
   bool isLeaf() const;                      // Check if the current node is a leaf 
   void splitNode();                         // Split the node if it exceeds capacity (i.e >=M) 
   MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
-  bool search(const DT& value);             // Internal searching function.
+  bool search(const DT& value);             // Interal searching function.
   vector<DT>& collectValues();              // Collect values from all leaf nodes  
 
   void buildTree(const vector<DT>& input_values);   // Build the tree  
 
   bool find(DT& value);             // Find a value from the MTree
   void insert(const DT& value);     // Insert a value into the MTree
-  void remove(const DT& value);     // Delete a value from the MTree 
-
+  void remove(const DT& value);     // Remove a value from the MTree 
 };
 
 //______________________________________ IMPLEMENTATION ______________________________________//
+// Constructs a new node with M-1 values and M slots for children.
 template <class DT>
 MTree<DT>::MTree(int M) {
 }
 
+// Destructor for tree nodes.
 template <class DT>
 MTree<DT>::~MTree() {
 }
 
+// Checks if the current node is a leaf.
 template <class DT>
 bool MTree<DT>::isLeaf() const {
   return false;
 }
 
-template <class DT>
-void MTree<DT>::insert(const DT &value) {
-}
-
+// Splits a node, used for balancing the tree.
 template <class DT>
 void MTree<DT>::splitNode() {
 }
 
+// Finds the correct child to follow? <- probably for traversal??
 template <class DT>
 MTree<DT>* MTree<DT>::findChild(const DT& value) {
   return nullptr;
 }
 
+// Internally searches the tree for a node. <- should be internal??
 template <class DT>
-bool MTree<DT>::search(const DT &value) {
+bool MTree<DT>::search(const DT& value) {
   return false;
 }
 
-template <class DT>
-void MTree<DT>::remove(const DT &value) {
-}
-
-template <class DT>
-void MTree<DT>::buildTree(const vector<DT> &input_values) {
-  // TODO: THIS IS THE FIRST METHOD THAT NEEDS TO BE BUILT AS IT IS CALLED FROM THE TOP OF MAIN()
-  // Build the tree /******************************************** */ /// TODO WORKING HERE ///
-  // call to function is on like 124 down in main().
-}
-
+// collects and returns a sorted list of the nodes in the tree.
 template <class DT>
 vector<DT>& MTree<DT>::collectValues() {
+  // An inorder traversal of a tree is a sorted list <-- use this fact.
   // TODO add a return statement here. 
+  return values; //stubby.
+}
+
+// Builds tree from a given a vector of values.
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& input_values) {
+
+  if (input_values.size() <= M - 1) { // if input values can fit in a single node put them in.
+    values = input_values;
+  } else {
+    int D = input_values.size() / M; // D is maxmimun numbers of nodes that may need to be built.
+    for (int i = 0; i < M; i++) {
+      int start = D * i;
+      //cout << "start: " << start << " - ";
+      int end;
+      if (i == M - 1) {
+          end = input_values.size() - 1;
+          //cout << "end: " << end << endl;
+      } else {
+          end = start + D - 1;
+          //cout << "end: " << end << endl;
+          values.push_back(input_values[end]);
+      }
+      vector<DT> child_values(input_values.begin() + start, input_values.begin() + end + 1);
+      MTree<DT>* child = new MTree<DT>(M);
+      child->buildTree(child_values);
+      children.push_back(child);
+    }
+  }
 }
 
 template <class DT>
-bool MTree<DT>::find(DT &value) {
+bool MTree<DT>::find(DT& value) {
   return false;
+}
+
+// Inserts a value into the tree.
+template <class DT>
+void MTree<DT>::insert(const DT& value) {
+}
+
+// Removes a node from the tree.
+template <class DT>
+void MTree<DT>::remove(const DT& value) {
 }
 
 //_________________________________________ TESTING __________________________________________//
@@ -121,7 +152,7 @@ int main(int argc, char** argv) {
 
   // get the M value (number of nodes in the tree)
   cin >> MValue;
-  MTree<int> *myTree = new MTree<int>(MValue);
+  MTree<int>* myTree = new MTree<int>(MValue);
 
   // build the tree
   myTree->buildTree(mySortedValues);
@@ -134,7 +165,7 @@ int main(int argc, char** argv) {
 
     // based on command type, perform action:
     switch (command) {
-      case 'I': { // Insert
+      case 'I': {   // Insert
         cin >> value;
         try { 
           myTree->insert(value); 
@@ -165,14 +196,12 @@ int main(int argc, char** argv) {
         } 
         break; 
       } 
-
       case 'B': {  // Rebuild Tree 
         vector<int> myValues = myTree->collectValues(); // inOrder traverse the tree and make sorted array?
         myTree->buildTree(myValues); 
         cout << "The tree has been rebuilt." << endl;
         break; 
       } 
-
       default: {
         cout << "Invalid command!" << endl; 
       }
