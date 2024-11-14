@@ -85,7 +85,7 @@ bool MTree<DT>::isLeaf() const
 {
     for (int i = 0; i < M; ++i)
     {
-        if (values[i] != 0)
+        if ( !(children[i].empty()) )
         {
             return false;
         }
@@ -129,6 +129,21 @@ vector<DT>& MTree<DT>::collectValues()
     //    
     //}
 
+    vector<int>* collected_values = new vector<int>(); // if we end up calling this method recursivly, cannot have this line of code...
+
+
+    cout << "Printing values of current node: ";
+    for (int i = 0; i < M; ++i)
+    {
+        // traverse this path
+        if ( this->isLeaf() )
+        {
+            //for (int i = 0; i < )
+            //collected_values->push_back()
+        }
+        // if the node is a leaf, push its values to return_vector;
+    }
+
     // go left,
     //print first,
     // go 2nd
@@ -139,7 +154,7 @@ vector<DT>& MTree<DT>::collectValues()
     // print last
 
 
-    return *values; //stubby.
+    return *collected_values; //stubby.
 }
 
 // Builds tree from a given a vector of values.
