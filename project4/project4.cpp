@@ -43,10 +43,9 @@ class MTree
 protected: 
     int M;                       // Maximum number of children per node (M way split) 
     vector<DT> values;          // Values stored in the node (M-1 values) 
-
-public: 
     vector<MTree*> children;    // Pointers to child MTrees (M children) 
 
+public: 
     MTree(int M); 
     ~MTree(); 
 
@@ -121,6 +120,12 @@ MTree<DT>* MTree<DT>::findChild(const DT& value)
 template <class DT>
 MTree<DT>* MTree<DT>::search(const DT& value) 
 {
+    //for (int i = 0; i < M; ++i)
+    //{
+    //   if (value == values[i] then found) break;
+    //   if (value < values[i] then traverse) break;
+    //   else continue;
+    //}
     return nullptr;
 }
 
@@ -212,6 +217,7 @@ bool MTree<DT>::find(DT& value)
     }
     else
     {
+        throw NotFoundException();
         return false;
     }
 }
@@ -220,6 +226,7 @@ bool MTree<DT>::find(DT& value)
 template <class DT>
 void MTree<DT>::insert(const DT& value) 
 {
+    // can throw a DuplicateInsertion exception.
     return;
 }
 
@@ -234,7 +241,6 @@ void MTree<DT>::remove(const DT& value)
 //________________________________________________ TESTING ________________________________________________//
 int main(int argc, char** argv) 
 {
-
     int n;              // Count of numbers to stores in initial tree.
     int MValue;         // M value for the tree (number of children) (M-1 values in each node)
     int numCommands;    // Number of commands in the program.
