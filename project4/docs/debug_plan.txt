@@ -1,3 +1,4 @@
+--------------------------------------------------------------------------------------------------
 Specific Tests:
   The first tests performmed on the program where outputing the input gathered when
   building the vector and getting the number of commands for the main loop of the
@@ -7,8 +8,29 @@ Specific Tests:
     jumping into the main part of the program.
   
   The next tests were conducted on the buildTree method as it was the first method
-  to be implemented due to its call at the top of main. //***** TODO HERE ******//
+  to be implemented due to its call at the top of main. I frst used the cout<< s for start
+  and end, then had GPT review and explain the code a bit so I could comment and understand
+  it better.
+  
+  Once the buildTree() was verified I easily wrote the isLeaf and tested it actually whilst 
+  writing the collected values. During collectValues() there were many errors with segmentation
+  faults which I ended up needing to fix different return types, ways to store variables, etc.
+  But also during the process I needed to debug buildTree even further, and found that the 
+  buildTree method really does work properly.
+    Eventually, after much debugging I was able to get the values to collect correctly. It had to
+    do with the fact that I changed some variables to heap allocated and pointers to them, and it
+    messed up allocation making internal nodes full of nullptrs making them seem like leafs. (basically
+    coulnt traverse past the root becuse the root's children were nullptrs..) Once that was fixed,
+    I just needed to put an if statement to catch zero values when collected and skip over them, and boom,
+    we were collecting values from the tree correctly and were able to verify that the buildTree() method
+    works correctly as well. <- this was mind breaking/numbing lol. but we got it.
+--------------------------------------------------------------------------------------------------
 Issues and Resolutions:
-  // the specfic issues(bugs) and how they were resolved.
+  Whilst writing the collectValues() method, there were issues with segmentation faults based
+  on how I was accessing variables and returing others. I was able to fix this by carefully 
+  analyzing the variable types and making them the most logical and flexible they could be while
+  also applying and not causing more segmentation faults on access.
+--------------------------------------------------------------------------------------------------
 Verification:
   // how the program was eventually verified to be working correctly.
+--------------------------------------------------------------------------------------------------

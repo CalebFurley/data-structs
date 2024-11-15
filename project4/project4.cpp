@@ -31,10 +31,11 @@ class MTree
 { 
 protected: 
     int M;                       // Maximum number of children per node (M way split) 
-    vector<DT>* values;          // Values stored in the node (M-1 values) 
-    vector<MTree*>* children;    // Pointers to child MTrees (M children) 
+    vector<DT> values;          // Values stored in the node (M-1 values) 
 
 public: 
+    vector<MTree*> children;    // Pointers to child MTrees (M children) 
+
     MTree(int M); 
     ~MTree(); 
 
@@ -43,9 +44,9 @@ public:
 
     MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
     MTree<DT>* search(const DT& value);       // Interal searching function.
-    vector<DT>& collectValues();              // Collect values from all leaf nodes  
+    vector<DT> collectValues();              // Collect values from all leaf nodes  
 
-    void buildTree(const vector<DT>& input_values);   // Build the tree  
+    void buildTree(const vector<DT>& inputValues);   // Build the tree  
 
     bool find(DT& value);             // Find a value from the MTree
     void insert(const DT& value);     // Insert a value into the MTree
@@ -60,22 +61,20 @@ template <class DT>
 MTree<DT>::MTree(int M) 
 {
     this->M = M;
-    this->values = new vector<DT>(M-1);
-    this->children = new vector<MTree*>(M);
 }
 
 // Destructor for tree nodes.
 template <class DT>
 MTree<DT>::~MTree() 
 {
-    if ( values != nullptr ) 
+    if ( !values.empty() ) 
     {
-        delete this->values;
+        values.clear();
     }
 
-    if ( children != nullptr ) 
+    if ( !children.empty() ) 
     {
-        delete this->children;
+        children.clear();
     }
 }
 
@@ -83,7 +82,7 @@ MTree<DT>::~MTree()
 template <class DT>
 bool MTree<DT>::isLeaf() const 
 {
-    if (children->empty())
+    if ( children.empty() ) 
     {
         return true;
     }
@@ -116,44 +115,54 @@ MTree<DT>* MTree<DT>::search(const DT& value)
 
 // collects and returns a sorted list of the nodes in the tree.
 template <class DT>
-vector<DT>& MTree<DT>::collectValues() 
+vector<DT> MTree<DT>::collectValues() // according to GPT, modern c++ compilers optimize this return by value.
 {
-    // Make the vector static so it maintains its state throughout the recursion.
-    static vector<int>* collected_values = new vector<int>(); 
+    // Vector to store collected values from the leaf nodes.
+    vector<int> collectedValues;  
 
     // If the current node is a leaf, collect its values.
     if (this->isLeaf()) 
     {
+        //cout << "In a leaf node.\n";
         // Loop through and collect the values from this leaf.
         for (int i = 0; i < M-1; ++i) 
         {
-            collected_values->push_back((*this->values)[i]);
+            if (this->values[i] != 0)
+            {
+                collectedValues.push_back( this->values[i] );
+            }
         }
     }
     else 
     {
+        //cout << "In an internal node.\n";
         // If not a leaf, we need to recursively collect values from children
         for (int i = 0; i < M; ++i) 
         {
             // Recursively collect values from the child nodes
-            (*this->children)[i]->collectValues();
+            if (this->children[i] != nullptr) 
+            {
+                vector<DT> childValues = this->children[i]->collectValues();
+                collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
+            }
+            //else cout << "Child is nullptr" << endl;
         }
     }
 
-    return *collected_values; //stubby.
+    return collectedValues;
 }
 
 // Builds tree from a given a vector of values.
 template <class DT>
-void MTree<DT>::buildTree(const vector<DT>& input_values) 
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
 {
-    if (input_values.size() <= M - 1) // Leaf Node, Base Case
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
     {
-        values = new vector<DT>(input_values);
+        values = inputValues;
     } 
     else 
     {
-        int D = input_values.size() / M; // chunks the input_values into M sections
+        int D = inputValues.size() / M; // chunks the input_values into M sections
         for (int i = 0; i < M; i++) 
         {
             // The if else statements create child nodes
@@ -163,21 +172,21 @@ void MTree<DT>::buildTree(const vector<DT>& input_values)
 
             if (i == M - 1) 
             {
-                end = input_values.size() - 1;
+                end = inputValues.size() - 1;
                 //cout << "end: " << end << endl;
             } 
             else 
             {
                 end = start + D - 1;
                 //cout << "end: " << end << endl;
-                values->push_back(input_values[end]); // pushes the last value of each chunk into values for the internal nodes.
+                values.push_back(inputValues[end]); // pushes the last value of each chunk into values for the internal nodes.
             }
 
             // Internal Node, Recursive Case
-            vector<DT> child_values(input_values.begin() + start, input_values.begin() + end + 1);
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
             MTree<DT>* child = new MTree<DT>(M);
             child->buildTree(child_values); // calls the build tree on the newly created child
-            children->push_back(child); // pushes the child to the children vector of the current node
+            children.push_back(child); // pushes the child to the children vector of the current node
         }
     }
 }
@@ -238,23 +247,6 @@ int main(int argc, char** argv)
 
     // Build the intitial tree.
     myTree->buildTree(mySortedValues);
-
-    //////////////  DEBUGGING HERE  ////////////////////
-    // The collect values method is causing the application
-    // to crash for some reason? Look into this with GPT.
-    //
-    // Debugging code is to the right of this message.
-    /////////////////////////////////////////////////////
-
-                                                            cout << "Original: ";
-                                                            for (int i = 0; i < n; ++i){
-                                                                cout << mySortedValues[i] << " ";
-                                                            }cout << endl;
-                                                            mySortedValues = myTree->collectValues();
-                                                            cout << "Collected: ";
-                                                            for (int i = 0; i < n; ++i) {
-                                                                cout << mySortedValues[i] << " ";
-                                                            } cout << endl;
 
     // Read in the number of commands.
     cin >> numCommands;
@@ -318,6 +310,15 @@ int main(int argc, char** argv)
             }
         } 
     }
+
+    // Print out the final list.
+    cout << "Final list: ";
+    mySortedValues = myTree->collectValues();
+    for (int i = 0; i < mySortedValues.size(); ++i) 
+    {
+        cout << mySortedValues[i] << " ";
+    }
+    cout << endl;
 
     // End of program
     delete myTree; 
