@@ -83,14 +83,14 @@ MTree<DT>::~MTree()
 template <class DT>
 bool MTree<DT>::isLeaf() const 
 {
-    for (int i = 0; i < M; ++i)
+    if (children->empty())
     {
-        if ( !(children[i].empty()) )
-        {
-            return false;
-        }
+        return true;
     }
-    return true;
+    else
+    {
+        return false;
+    }
 }
 
 // Splits a node, used for balancing the tree.
@@ -118,41 +118,27 @@ MTree<DT>* MTree<DT>::search(const DT& value)
 template <class DT>
 vector<DT>& MTree<DT>::collectValues() 
 {
-    // RETURN A SORTED LIST OF ALL LEAF NODES (the values are only stored in the leafs)
-    ///////////////////////////////////////////////////////////////////////////////////
+    // Make the vector static so it maintains its state throughout the recursion.
+    static vector<int>* collected_values = new vector<int>(); 
 
-    // An inorder traversal of a tree is a sorted list <-- use this fact.
-    // TODO add a return statement here. 
-
-    //for (int i = 0; i < M; ++i) 
-    //{
-    //    
-    //}
-
-    vector<int>* collected_values = new vector<int>(); // if we end up calling this method recursivly, cannot have this line of code...
-
-
-    cout << "Printing values of current node: ";
-    for (int i = 0; i < M; ++i)
+    // If the current node is a leaf, collect its values.
+    if (this->isLeaf()) 
     {
-        // traverse this path
-        if ( this->isLeaf() )
+        // Loop through and collect the values from this leaf.
+        for (int i = 0; i < M-1; ++i) 
         {
-            //for (int i = 0; i < )
-            //collected_values->push_back()
+            collected_values->push_back((*this->values)[i]);
         }
-        // if the node is a leaf, push its values to return_vector;
     }
-
-    // go left,
-    //print first,
-    // go 2nd
-    // print second
-    // go 3rd
-    // print third
-    // go last
-    // print last
-
+    else 
+    {
+        // If not a leaf, we need to recursively collect values from children
+        for (int i = 0; i < M; ++i) 
+        {
+            // Recursively collect values from the child nodes
+            (*this->children)[i]->collectValues();
+        }
+    }
 
     return *collected_values; //stubby.
 }
@@ -228,28 +214,50 @@ void MTree<DT>::remove(const DT& value)
 //________________________________________________ TESTING ________________________________________________//
 int main(int argc, char** argv) 
 {
-    int n; // Number of numbers in the initial sorted array
-    int MValue;
-    int numCommands;
-    char command;
-    int value;
+
+    int n;              // Count of numbers to stores in initial tree.
+    int MValue;         // M value for the tree (number of children) (M-1 values in each node)
+    int numCommands;    // Number of commands in the program.
+    char command;       // Variable to store the type of each command.
+    int value;          // Variable to store the values associated with each command.
     
-    cin >> n; // Read in size and create empty sorted array.
+    // Read the size of the values array and define the array.
+    cin >> n;
     vector<int> mySortedValues(n);
  
-    // Read numbers from input and add them to the sorted array.
+    // Read numbers from input and store in a sorted array.
     for (int i = 0; i < n; ++i) 
     {
         cin >> value;
         mySortedValues[i] = value;
     } 
 
-    cin >> MValue; // Read in the MValue
-    MTree<int>* myTree = new MTree<int>(MValue); // Create the root of the tree.
+    // Read in the MValue and create the root of the tree.
+    cin >> MValue;
+    MTree<int>* myTree = new MTree<int>(MValue);
 
-    myTree->buildTree(mySortedValues); // Build the intitial tree.
+    // Build the intitial tree.
+    myTree->buildTree(mySortedValues);
 
-    cin >> numCommands; // Read the number of commands.
+    //////////////  DEBUGGING HERE  ////////////////////
+    // The collect values method is causing the application
+    // to crash for some reason? Look into this with GPT.
+    //
+    // Debugging code is to the right of this message.
+    /////////////////////////////////////////////////////
+
+                                                            cout << "Original: ";
+                                                            for (int i = 0; i < n; ++i){
+                                                                cout << mySortedValues[i] << " ";
+                                                            }cout << endl;
+                                                            mySortedValues = myTree->collectValues();
+                                                            cout << "Collected: ";
+                                                            for (int i = 0; i < n; ++i) {
+                                                                cout << mySortedValues[i] << " ";
+                                                            } cout << endl;
+
+    // Read in the number of commands.
+    cin >> numCommands;
 
     /******* Process the Commands ********/
     for (int i = 0; i < numCommands; i++) 
@@ -299,7 +307,7 @@ int main(int argc, char** argv)
             } 
             case 'B': // Rebuild Tree
             {
-                vector<int> myValues = myTree->collectValues(); // inOrder traverse the tree and make sorted array?
+                vector<int> myValues = myTree->collectValues();
                 myTree->buildTree(myValues); 
                 cout << "The tree has been rebuilt." << endl;
                 break; 
