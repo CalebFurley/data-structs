@@ -16,6 +16,17 @@ using namespace std;
     5. Testing
     6. Debug Plan
     7. LLM Usage
+
+  Quehacer:
+    --------------
+    1. search()
+    2. findChild()
+    3. find()
+    --------------
+    4. splitNode()
+    5. insert()
+    6. remove()
+    --------------
 */
 
 
