@@ -101,15 +101,35 @@ bool MTree<DT>::isLeaf() const
 template <class DT>
 void MTree<DT>::splitNode() 
 {
-    return; 
+    if (values.size() < M - 1) 
+        return;
+
+    int midIndex = values.size() / 2;
+    DT midValue = values[midIndex];
+
+    MTree<DT>* rightNode = new MTree<DT>(M);
+
+    // Move upper half of values and children to the new node
+    rightNode->values.assign(values.begin() + midIndex + 1, values.end());
+    values.resize(midIndex);
+
+    if (!isLeaf()) 
+    {
+        rightNode->children.assign(children.begin() + midIndex + 1, children.end());
+        children.resize(midIndex + 1);
+    }
+
+    // Handle parent node promotion (caller must implement)
+    throw logic_error("Mid-value promotion to parent required.");
 }
+
 
 // Finds the correct child to follow
 template <class DT>
 MTree<DT>* MTree<DT>::findChild(const DT& value) 
 {
     // this method is unused, I loop over the children and
-    // traverse in each method for simplicity. using this
+    // traverse in each method forsearch() for simplicity. using this
     // method would complicate stuff too much...
     return nullptr;
 }
@@ -121,7 +141,7 @@ MTree<DT>* MTree<DT>::search(const DT& value)
     // If the node is a leaf, then check its values and return this or null.
     if ( this->isLeaf() )
     {
-        cout << "\nSearching leaf: ";
+        //cout << "\nSearching leaf: ";
         for (int i = 0; i < values.size(); ++i)
         {
             if (values[i] == value)
@@ -133,16 +153,11 @@ MTree<DT>* MTree<DT>::search(const DT& value)
     }
     else // if the node is an internal, check against values, and traverse.
     {
-        ///////////////////////////////////////////////////////////
-        cout << "\nSearching Internal: ";
-        for (const auto& val : values) cout << val << " ";
-        cout << "\nNumber of children: " << children.size() << "\n";
-        ///////////////////////////////////////////////////////////
         for (int i = 0; i < values.size(); ++i)
         {
             if (value <= values[i] && values[i] != 0) 
             {
-                cout << values[i] << " ";
+                //cout << values[i] << " ";
                 return children[i]->search(value);
             }
         }
@@ -255,16 +270,124 @@ bool MTree<DT>::find(DT& value)
 template <class DT>
 void MTree<DT>::insert(const DT& value) 
 {
-    // can throw a DuplicateInsertion exception.
-    return;
+    // If the current node is a leaf
+    if (isLeaf()) 
+    {
+        // Check if the value already exists in the node
+        for (const auto& v : values) 
+        {
+            if (v == value) 
+            {
+                throw DuplicateInsertion();
+            }
+        }
+
+        // Add the value to the node in sorted order (manually sort since no `<algorithm>`)
+        bool inserted = false;
+        for (int i = 0; i < values.size(); ++i) 
+        {
+            if (value < values[i]) 
+            {
+                values.insert(values.begin() + i, value);
+                inserted = true;
+                break;
+            }
+        }
+
+        // If not inserted, add it to the end
+        if (!inserted) 
+        {
+            values.push_back(value);
+        }
+
+        // Split the node if it overflows
+        if (values.size() >= M) 
+        {
+            splitNode();
+        }
+    } 
+    else 
+    {
+        // If not a leaf, find the correct child to insert into
+        int i = 0;
+        while (i < values.size() && value > values[i]) 
+        {
+            ++i;
+        }
+
+        children[i]->insert(value);
+
+        // If the child split, handle promotion of midValue
+        if (children[i]->values.size() >= M) 
+        {
+            splitNode();
+        }
+    }
 }
+
 
 // Removes a node from the tree.
 template <class DT>
 void MTree<DT>::remove(const DT& value) 
 {
-    return;
+    // Search for the value in the current node
+    int index = -1;
+    for (int i = 0; i < values.size(); ++i) 
+    {
+        if (values[i] == value) 
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if (index != -1) 
+    {
+        // If the node is a leaf, simply remove the value
+        if (isLeaf()) 
+        {
+            values.erase(values.begin() + index);
+        } 
+        else 
+        {
+            // Replace the value with the largest value from the left subtree
+            MTree* leftChild = children[index];
+            while (!leftChild->isLeaf()) 
+            {
+                leftChild = leftChild->children.back();
+            }
+
+            // Replace and remove the predecessor value
+            values[index] = leftChild->values.back();
+            leftChild->values.pop_back();
+        }
+    } 
+    else 
+    {
+        // If the value is not in this node, recurse to the appropriate child
+        int i = 0;
+        while (i < values.size() && value > values[i]) 
+        {
+            ++i;
+        }
+
+        if (i < children.size()) 
+        {
+            children[i]->remove(value);
+
+            // Handle underflow if necessary
+            if (children[i]->values.size() < (M - 1) / 2) 
+            {
+                throw logic_error("Underflow handling is not yet implemented.");
+            }
+        } 
+        else 
+        {
+            throw NotFoundException();
+        }
+    }
 }
+
 
 
 //________________________________________________ TESTING ________________________________________________//
@@ -360,6 +483,17 @@ int main(int argc, char** argv)
     // Print out the final list.
     cout << "Final list: ";
     mySortedValues = myTree->collectValues();
+
+    for (int i = 0; i < mySortedValues.size(); ++i) {
+        for (int j = i + 1; j < mySortedValues.size(); ++j) {
+            if (mySortedValues[i] == mySortedValues[j]) {
+                mySortedValues.erase(mySortedValues.begin() + j);
+                --j;  // Adjust the index since the vector is shifted after erase
+            }
+        }
+    }
+
+
     for (int i = 0; i < mySortedValues.size(); ++i) 
     {
         cout << mySortedValues[i] << " ";
