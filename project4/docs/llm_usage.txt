@@ -4205,3 +4205,3560 @@ Both the sorted Original list and the Collected list (after removing zeros and s
 Conclusion:
 
 Yes, the values in both lists are the same (after removing the zeros from the collected list), and both lists are sorted in the same order from smallest to largest. So, you are good to go!
+You said:
+note to self:
+
+
+im fixing the search method for the largest value of an internal node. right now its not finding value 921.
+ChatGPT said:
+ChatGPT
+
+Got it! You're working on fixing the search method for finding the largest value of an internal node, and it's currently not identifying the value 921. If you need any help debugging or refining the method, feel free to ask!
+You said:
+template <class DT>
+MTree<DT>* MTree<DT>::search(const DT& value) 
+{
+    // If the node is a leaf, then check its values and return this or null.
+    if ( this->isLeaf() )
+    {
+        cout << "\nSearching leaf: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << values[i] << " ";
+                return this;
+            }
+        }
+    }
+    else // if the node is an internal, check against values, and traverse.
+    {
+        cout << "\nSearching Internal: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (value <= values[i] && values[i] != 0) 
+            {
+                cout << values[i] << " ";
+                return children[i]->search(value);
+            }
+        }
+        return children[values.size()]->search(value); // if its the largest value in node, then search that direction.
+    }
+    return nullptr;
+}
+
+Searching Internal: 507 
+Searching Internal: 406 
+Searching Internal: 385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 746 
+Searching Internal: 559 
+Searching Internal: 519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 
+Searching Internal: 
+Searching Internal: 
+Searching Internal: 
+Searching leaf: The element with value = 921 not found.
+ChatGPT said:
+ChatGPT
+
+The issue appears to be with how the method is navigating through the tree when it encounters values in the internal nodes. Specifically, for larger values like 921, the traversal logic may not properly handle situations where the value exceeds all internal node values or fails to traverse to the correct child.
+Debugging Steps:
+
+    Check Node Values: Print the values array of each node (both internal and leaf) to ensure that the values are being stored correctly and sorted (if applicable).
+
+    Traversal Logic: Ensure that the logic accounts for cases where the value is greater than all the elements in the current node. Specifically, this part:
+
+return children[values.size()]->search(value);
+
+Make sure the children array is correctly sized, and there is a child for this case.
+
+Comparison Condition: The check:
+
+    if (value <= values[i] && values[i] != 0)
+
+    might be skipping over some nodes. For example:
+        The value <= values[i] comparison is restrictive; verify that this condition is appropriate.
+        The values[i] != 0 check assumes that 0 is a special case; make sure this aligns with your tree's design.
+
+    Edge Cases: Consider the following scenarios:
+        Searching for the maximum value in the entire tree.
+        Searching for values at the boundaries of internal nodes.
+        Empty or sparsely populated nodes.
+
+Suggested Fix:
+
+Modify the traversal logic slightly to ensure you don't miss larger values:
+
+else // if the node is internal, check against values, and traverse.
+{
+    cout << "\nSearching Internal: ";
+    for (int i = 0; i < values.size(); ++i)
+    {
+        cout << values[i] << " ";
+        if (value <= values[i])
+        {
+            return children[i]->search(value); // Traverse the left or middle child.
+        }
+    }
+    // If value is larger than all node values, search the rightmost child.
+    return children[values.size()]->search(value);
+}
+
+Test and Debug:
+
+Add additional debug statements to track where the traversal is failing:
+
+else
+{
+    cout << "\nSearching Internal: ";
+    for (int i = 0; i < values.size(); ++i)
+    {
+        cout << values[i] << " ";
+        if (value <= values[i])
+        {
+            cout << " -> Moving to child[" << i << "]\n";
+            return children[i]->search(value);
+        }
+    }
+    cout << " -> Moving to rightmost child[" << values.size() << "]\n";
+    return children[values.size()]->search(value);
+}
+
+Verify Input and Tree Structure:
+
+If 921 isn't found, verify:
+
+    Is 921 actually in the tree?
+    Is the tree structured correctly, with 921 placed in the correct leaf?
+
+Feel free to share additional details, and I can help refine further!
+You said:
+921 is in the tree, and its weird because if the key is not less than any value to travverse that chlid, I traverse children[values->size()]->search(value); which should handle the max value of that node right????
+ChatGPT said:
+ChatGPT
+
+You're absolutely correct in your reasoning! The children[values.size()]->search(value) is supposed to handle the case when the key is larger than all the internal node's values, and it should traverse to the rightmost child. If 921 is in the tree but isn't being found, here are a few possible issues to investigate:
+Possible Issues
+
+    Child Array Indexing: Double-check the size of the children array. It should always have values.size() + 1 elements, one for each possible range of values in the node.
+
+    If the children array is incorrectly sized (e.g., values.size() children instead of values.size() + 1), accessing children[values.size()] could lead to undefined behavior.
+
+    Debug Tip: Print out the number of children when entering an internal node:
+
+cout << "\nInternal node values: ";
+for (const auto& val : values) cout << val << " ";
+cout << "\nNumber of children: " << children.size() << "\n";
+
+Value Placement: Ensure 921 is placed in the correct child node during tree construction or insertion. If the tree wasn't built correctly, the value might not be where you expect it to be.
+
+Debug Tip: Check if 921 exists in the subtree of the expected child node.
+
+Edge Case Logic: The check:
+
+if (value <= values[i])
+
+means that for values strictly greater than all node values, only the children[values.size()] path is used. This is correct logic, but you should confirm that:
+
+    You're hitting the children[values.size()] path for 921.
+    The subtree rooted at children[values.size()] contains 921.
+
+Debug Tip: Add logging to confirm:
+
+if (value <= values[i])
+{
+    cout << " -> Moving to child[" << i << "]\n";
+    return children[i]->search(value);
+}
+cout << " -> Moving to rightmost child[" << values.size() << "]\n";
+
+Leaf Node Search: Once you reach a leaf node, ensure 921 is correctly compared to the values in the leaf. If the leaf's values array doesn't contain 921, the search will fail.
+
+Debug Tip: In the isLeaf() case, print all values in the node:
+
+    if (this->isLeaf())
+    {
+        cout << "\nSearching leaf: ";
+        for (const auto& val : values) cout << val << " ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << "\nFound " << value << " in leaf!";
+                return this;
+            }
+        }
+    }
+
+Hypothesis
+
+The most likely cause is either:
+
+    A mismatch between values.size() and children.size() in internal nodes.
+    921 not being in the expected rightmost child due to a tree construction issue.
+
+Suggested Debugging Process
+
+    Validate Tree Structure: Print the structure of the tree (values in each node and their children) to confirm:
+        Each node has values.size() + 1 children.
+        921 is correctly placed in the appropriate child.
+
+    Trace the Path: Add logging to trace the traversal path for 921:
+
+    cout << "Traversing node with values: ";
+    for (const auto& val : values) cout << val << " ";
+    cout << "\n";
+
+    Inspect the Rightmost Child: Confirm that children[values.size()] contains 921 in its subtree.
+
+If none of these reveal the issue, share the tree structure and debug logs—I'll help you analyze it further!
+You said:
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 273 507 746 
+Number of children: 8
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 273 507 746 273 507 746 
+Number of children: 12
+
+Searching Internal: 344 406 441 
+Number of children: 4
+
+Searching Internal: 447 466 474 
+Number of children: 4
+
+Searching Internal: 478 496 498 
+Number of children: 4
+
+Searching leaf: The element with value = 921 not found.
+
+why is it repeating values on internals?
+ChatGPT said:
+ChatGPT
+
+The issue of repeated values in the internal nodes (e.g., 273 507 746 appearing multiple times) suggests a problem in how the internal nodes are being managed or updated during tree operations, such as insertions or rebalancing.
+Possible Causes of Repeated Values
+
+    Incorrect Node Splitting During Rebalancing: If the tree structure splits nodes incorrectly during insertions or when rebuilding, it might duplicate values in the parent nodes. For example:
+        When a node is split, the middle value is usually promoted to the parent. If this is not handled properly, it might insert duplicate values into the parent node.
+
+    Redundant Value Insertion: During insertion or promotion, the algorithm might mistakenly insert the same value into an internal node more than once. This could happen if:
+        The same value is inserted into multiple children, and then both children promote the same value.
+        The parent node does not properly check for duplicate values before adding a new one.
+
+    Corrupted Tree State: If an operation, such as rebalancing or rebuilding the tree, leaves the tree in an inconsistent state, it could lead to duplicated values.
+
+    Logic Error in Tree Building: The logic for constructing or rebalancing the tree may be inadvertently adding values already present in the internal nodes.
+
+Debugging Steps
+
+    Inspect Tree Building and Rebalancing Code:
+        Check the part of the code where nodes are split and internal values are updated.
+        Ensure that values are only added to internal nodes once during a split or rebalance.
+
+    Validate Promotion Logic:
+        When a child node is split, confirm that only one value is promoted to the parent.
+        Check that no duplicates are introduced during this process.
+
+    Track Updates to Internal Nodes: Add debug statements wherever internal nodes are updated to ensure no duplicate values are added:
+
+cout << "Updating internal node with values: ";
+for (const auto& val : internalNode->values) cout << val << " ";
+cout << "\n";
+
+Verify Tree Integrity After Rebalancing: After every tree update, validate the structure of the tree:
+
+    Each internal node should have unique and sorted values.
+    The number of children should match values.size() + 1.
+
+Check Duplication Conditions: Add checks to avoid inserting duplicate values into internal nodes:
+
+    if (std::find(values.begin(), values.end(), newValue) == values.end())
+    {
+        values.push_back(newValue);
+        std::sort(values.begin(), values.end()); // Ensure the values remain sorted
+    }
+
+Suggested Fixes
+
+Example for Node Splitting Logic: When splitting a node during insertion or rebalancing:
+
+    Identify the middle value (median).
+    Promote the median to the parent.
+    Ensure the median is removed from the child node and added to the parent only once.
+
+void splitNode(Node* parent, Node* child, int index) {
+    // Find the median
+    int medianIndex = child->values.size() / 2;
+    DT medianValue = child->values[medianIndex];
+
+    // Promote median to the parent
+    parent->values.insert(parent->values.begin() + index, medianValue);
+
+    // Create two new child nodes (left and right)
+    Node* left = new Node();
+    Node* right = new Node();
+
+    // Move values and children to left and right nodes
+    left->values = std::vector<DT>(child->values.begin(), child->values.begin() + medianIndex);
+    right->values = std::vector<DT>(child->values.begin() + medianIndex + 1, child->values.end());
+    
+    if (!child->isLeaf()) {
+        left->children = std::vector<Node*>(child->children.begin(), child->children.begin() + medianIndex + 1);
+        right->children = std::vector<Node*>(child->children.begin() + medianIndex + 1, child->children.end());
+    }
+
+    // Update parent's children
+    parent->children[index] = left;
+    parent->children.insert(parent->children.begin() + index + 1, right);
+
+    // Clean up the original child node
+    delete child;
+}
+
+Summary
+
+The repeated values indicate an issue with how internal nodes are updated, likely during splitting or rebalancing. Debugging and fixing the tree-building and rebalancing code should resolve the problem. Let me know if you'd like to dive into specific parts of your code!
+You said:
+            case 'B': // Rebuild Tree
+            {
+                vector<int> myValues = myTree->collectValues();
+                    cout << "myValues: ";
+                    for (int val : myValues) cout << val << " ";
+                    cout << endl;
+                delete myTree;
+                myTree = nullptr;
+                MTree<int>* myTree = new MTree<int>(MValue);
+                myTree->buildTree(myValues); 
+                cout << "The tree has been rebuilt." << endl;
+                break; 
+            } 
+            default: 
+
+this causes seg fault. why?
+ChatGPT said:
+ChatGPT
+
+The segmentation fault occurs because of how you're handling the myTree pointer in the Rebuild Tree case. Specifically, the issue lies in this line:
+
+MTree<int>* myTree = new MTree<int>(MValue);
+
+Here, you're creating a new local variable myTree that shadows the original myTree pointer. As a result:
+
+    The original myTree is deleted, leaving the original global or outer-scope pointer as nullptr.
+    The newly created myTree pointer exists only within the scope of the case block, and when the block ends, this new pointer is lost, leaving you with a dangling or invalid pointer.
+
+Correcting the Code
+
+To avoid this issue, remove the shadowing declaration and directly update the outer-scope myTree pointer:
+
+case 'B': // Rebuild Tree
+{
+    // Collect the values from the current tree
+    vector<int> myValues = myTree->collectValues();
+    cout << "myValues: ";
+    for (int val : myValues) cout << val << " ";
+    cout << endl;
+
+    // Delete the current tree
+    delete myTree;
+    myTree = nullptr;
+
+    // Rebuild the tree with the collected values
+    myTree = new MTree<int>(MValue); // Do not redeclare 'myTree'
+    myTree->buildTree(myValues); 
+    cout << "The tree has been rebuilt." << endl;
+    break; 
+}
+
+Why This Works
+
+    The original myTree pointer is properly updated to point to the new tree.
+    No new local myTree variable is created, so the global or outer-scope myTree retains its reference.
+
+Additional Debugging Tips for Segmentation Faults
+
+    Check for Dangling Pointers: After calling delete, always set pointers to nullptr to prevent accidental access to freed memory.
+
+    Validate collectValues: Ensure that collectValues doesn't rely on any invalidated memory before deleting the tree.
+
+    Add Debug Logs: Insert debug logs to ensure that myTree is properly managed:
+
+    cout << "myTree before deletion: " << myTree << endl;
+    delete myTree;
+    myTree = nullptr;
+    cout << "myTree after deletion: " << myTree << endl;
+
+Let me know if this fixes the issue or if additional debugging is needed!
+You said:
+so i was deleting the tree becuase each tim erebuild tree is called it makes copies of values in each node.. but if i delete the tree here it causes whacky whack errors. is there a better way to appraoch this. here is the current code and output.
+
+[caleb@archlinux project4]$ g++ project4.cpp
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 273 507 746 
+Number of children: 8
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 273 507 746 273 507 746 
+Number of children: 12
+
+Searching Internal: 344 406 441 
+Number of children: 4
+
+Searching Internal: 447 466 474 
+Number of children: 4
+
+Searching Internal: 478 496 498 
+Number of children: 4
+
+Searching leaf: The element with value = 921 not found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 
+Number of children: 20
+
+Searching Internal: 819 881 936 
+Number of children: 4
+881 
+Searching Internal: 845 861 871 
+Number of children: 4
+
+Searching leaf: 879 The element with value = 879 was found.
+The tree has been rebuilt.
+The value = 635 has been removed.
+The value = 531 has been removed.
+The value = 509 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 747 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 984 has been removed.
+The tree has been rebuilt.
+The value = 408 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+
+Searching Internal: 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 
+Number of children: 56
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+647 
+Searching Internal: 615 632 639 
+Number of children: 4
+639 
+Searching leaf: 635 The element with value = 635 was found.
+The tree has been rebuilt.
+The value = 758 has been removed.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 273 507 746 
+Number of children: 64
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+441 
+Searching Internal: 413 420 428 
+Number of children: 4
+
+Searching leaf: 441 The element with value = 441 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 478 has been removed.
+Final list: 5 8 10 13 14 35 37 40 46 51 53 55 63 65 66 69 71 82 83 86 92 98 100 113 121 123 124 125 134 135 151 160 164 165 167 179 180 186 191 197 206 229 230 233 237 241 248 249 5 252 273 282 284 285 295 296 301 304 322 328 331 341 344 348 351 364 368 382 385 392 393 394 403 404 406 408 409 413 415 419 420 424 427 428 435 439 441 442 444 447 455 460 466 471 472 474 478 496 498 5 502 507 509 514 519 522 526 531 538 542 547 548 553 559 560 564 565 569 574 576 577 583 584 587 592 603 605 607 615 623 628 632 634 635 639 640 645 647 650 661 674 688 689 692 697 709 714 721 729 734 5 735 746 747 757 758 768 775 777 779 786 797 800 818 819 827 837 845 846 858 861 864 865 871 879 880 881 886 889 893 896 906 913 920 921 928 932 934 936 939 941 945 946 951 961 964 975 981 984 985 986 5 987 989 
+
+#include <vector> 
+#include <iostream> 
+using namespace std; 
+
+//________________________________________________ SUMMARY ________________________________________________//
+/*
+  Summary:
+    This file is for Data Structures Project 4. The file follows the structure
+    listed immediately below.
+
+  Organization:
+    1. Summary
+    2. Exceptions
+    3. Prototype
+    4. Implementation
+    5. Testing
+    6. Debug Plan
+    7. LLM Usage
+
+  Quehacer:
+    --------------
+    1. search()
+    2. findChild()
+    3. find()
+    --------------
+    4. splitNode()
+    5. insert()
+    6. remove()
+    --------------
+*/
+
+
+//_______________________________________________ EXCEPTIONS ______________________________________________//
+class Exception {};
+class DuplicateInsertion : public Exception {};
+class NotFoundException : public Exception {};
+
+//_______________________________________________ PROTOTYPE _______________________________________________//
+
+template <class DT> 
+class MTree 
+{ 
+protected: 
+    int M;                       // Maximum number of children per node (M way split) 
+    vector<DT> values;          // Values stored in the node (M-1 values) 
+    vector<MTree*> children;    // Pointers to child MTrees (M children) 
+
+public: 
+    MTree(int M); 
+    ~MTree(); 
+
+    bool isLeaf() const;                      // Check if the current node is a leaf 
+    void splitNode();                         // Split the node if it exceeds capacity (i.e >=M) 
+
+    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
+    MTree<DT>* search(const DT& value);       // Interal searching function.
+    vector<DT> collectValues();              // Collect values from all leaf nodes  
+
+    void buildTree(const vector<DT>& inputValues);   // Build the tree  
+
+    bool find(DT& value);             // Find a value from the MTree
+    void insert(const DT& value);     // Insert a value into the MTree
+    void remove(const DT& value);     // Remove a value from the MTree 
+};
+
+
+//____________________________________________ IMPLEMENTATION _____________________________________________//
+
+// Constructs a new node with M-1 values and M slots for children.
+template <class DT>
+MTree<DT>::MTree(int M) 
+{
+    this->M = M;
+}
+
+// Destructor for tree nodes.
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    if ( !values.empty() ) 
+    {
+        values.clear();
+    }
+
+    if ( !children.empty() ) 
+    {
+        for (int i = 0; i < children.size(); ++i)
+        {
+            delete children[i];
+        }
+        children.clear();
+    }
+}
+
+// Checks if the current node is a leaf.
+template <class DT>
+bool MTree<DT>::isLeaf() const 
+{
+    if ( children.empty() ) 
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// Splits a node, used for balancing the tree.
+template <class DT>
+void MTree<DT>::splitNode() 
+{
+    return; 
+}
+
+// Finds the correct child to follow? <- probably for traversal??
+template <class DT>
+MTree<DT>* MTree<DT>::findChild(const DT& value) 
+{
+    return nullptr;
+}
+
+// Internal Searching method, returns pointer to node if found.
+template <class DT>
+MTree<DT>* MTree<DT>::search(const DT& value) 
+{
+    // If the node is a leaf, then check its values and return this or null.
+    if ( this->isLeaf() )
+    {
+        cout << "\nSearching leaf: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << values[i] << " ";
+                return this;
+            }
+        }
+    }
+    else // if the node is an internal, check against values, and traverse.
+    {
+        ///////////////////////////////////////////////////////////
+        cout << "\nSearching Internal: ";
+        for (const auto& val : values) cout << val << " ";
+        cout << "\nNumber of children: " << children.size() << "\n";
+        ///////////////////////////////////////////////////////////
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (value <= values[i] && values[i] != 0) 
+            {
+                cout << values[i] << " ";
+                return children[i]->search(value);
+            }
+        }
+        return children[values.size()]->search(value); // if its the largest value in node, then search that direction.
+    }
+    return nullptr;
+}
+
+// collects and returns a sorted list of the nodes in the tree.
+template <class DT>
+vector<DT> MTree<DT>::collectValues() // according to GPT, modern c++ compilers optimize this return by value.
+{
+    // Vector to store collected values from the leaf nodes.
+    vector<int> collectedValues;  
+
+    // If the current node is a leaf, collect its values.
+    if (this->isLeaf()) 
+    {
+        //cout << "In a leaf node.\n";
+        // Loop through and collect the values from this leaf.
+        for (int i = 0; i < M-1; ++i) 
+        {
+            if (this->values[i] != 0)
+            {
+                collectedValues.push_back( this->values[i] );
+            }
+        }
+    }
+    else 
+    {
+        //cout << "\nIn an internal node.\n";
+        // If not a leaf, we need to recursively collect values from children
+        for (int i = 0; i < M; ++i) 
+        {
+            //cout << this->values[i] << " ";
+            // Recursively collect values from the child nodes
+            if (this->children[i] != nullptr) 
+            {
+                vector<DT> childValues = this->children[i]->collectValues();
+                collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
+            }
+            //else cout << "Child is nullptr" << endl;
+        }
+    }
+
+    return collectedValues;
+}
+
+// Builds tree from a given a vector of values.
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            // The if else statements create child nodes
+            int start = D * i;
+            //cout << "start: " << start << " - ";
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+                //cout << "end: " << end << endl;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                //cout << "end: " << end << endl;
+                values.push_back(inputValues[end]); // pushes the last value of each chunk into values for the internal nodes.
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // calls the build tree on the newly created child
+            children.push_back(child); // pushes the child to the children vector of the current node
+        }
+    }
+}
+
+// Checks if a node is present in the tree.
+template <class DT>
+bool MTree<DT>::find(DT& value) 
+{
+    if ( search(value) != nullptr) 
+    {
+        return true;
+    }
+    else
+    {
+        throw NotFoundException();
+        return false;
+    }
+}
+
+// Inserts a value into the tree.
+template <class DT>
+void MTree<DT>::insert(const DT& value) 
+{
+    // can throw a DuplicateInsertion exception.
+    return;
+}
+
+// Removes a node from the tree.
+template <class DT>
+void MTree<DT>::remove(const DT& value) 
+{
+    return;
+}
+
+
+//________________________________________________ TESTING ________________________________________________//
+int main(int argc, char** argv) 
+{
+    int n;              // Count of numbers to stores in initial tree.
+    int MValue;         // M value for the tree (number of children) (M-1 values in each node)
+    int numCommands;    // Number of commands in the program.
+    char command;       // Variable to store the type of each command.
+    int value;          // Variable to store the values associated with each command.
+    
+    // Read the size of the values array and define the array.
+    cin >> n;
+    vector<int> mySortedValues(n);
+ 
+    // Read numbers from input and store in a sorted array.
+    for (int i = 0; i < n; ++i) 
+    {
+        cin >> value;
+        mySortedValues[i] = value;
+    } 
+
+    // Read in the MValue and create the root of the tree.
+    cin >> MValue;
+    MTree<int>* myTree = new MTree<int>(MValue);
+
+    // Build the intitial tree.
+    myTree->buildTree(mySortedValues);
+
+    // Read in the number of commands.
+    cin >> numCommands;
+
+    /******* Process the Commands ********/
+    for (int i = 0; i < numCommands; i++) 
+    {
+        cin >> command; // Read the command type.
+        switch (command) // Switch based on command.
+        {
+            case 'I': // Insert
+            {
+                cin >> value;
+                try 
+                { 
+                    myTree->insert(value); 
+                } 
+                catch (DuplicateInsertion& e) { 
+                    cout << "The value = " << value << " already in the tree." << endl;
+                } 
+                break; 
+            }  
+            case 'R': // Remove  
+            {  
+                cin >> value; 
+                try 
+                { 
+                    myTree->remove(value); 
+                    cout << "The value = " << value << " has been removed." << endl;
+                }  
+                catch (NotFoundException& e) 
+                { 
+                    cout << "The value = " << value << " not found." << endl;
+                } 
+                break; 
+            } 
+            case 'F': // Find
+            { 
+                cin >> value; 
+                try 
+                {
+                    myTree->find(value);
+                    cout << "The element with value = " << value << " was found." << endl; 
+                }
+                catch (NotFoundException& e) 
+                {
+                    cout << "The element with value = " << value << " not found." << endl; 
+                } 
+                break; 
+            } 
+            case 'B': // Rebuild Tree
+            {
+                vector<int> myValues = myTree->collectValues();
+                myTree->buildTree(myValues); 
+                cout << "The tree has been rebuilt." << endl;
+                break; 
+            } 
+            default: 
+            {
+                cout << "Invalid command!" << endl; 
+            }
+        } 
+    }
+
+    // Print out the final list.
+    cout << "Final list: ";
+    mySortedValues = myTree->collectValues();
+    for (int i = 0; i < mySortedValues.size(); ++i) 
+    {
+        cout << mySortedValues[i] << " ";
+    }
+    cout << endl;
+
+    // End of program
+    delete myTree; 
+    return 0;
+}
+ChatGPT said:
+ChatGPT
+
+The issue you're encountering stems from how the Rebuild Tree command interacts with your tree structure. Each time you rebuild the tree, the nodes and their associated memory are not properly managed, leading to unintended duplication of values or memory leaks.
+
+Here’s a breakdown of potential solutions and improvements:
+Problem Analysis
+
+    Rebuild Command Behavior:
+        The collectValues method collects all the values from the tree.
+        buildTree then rebuilds the tree using those values.
+        However, since the existing tree structure is not cleared before rebuilding, this results in duplicated nodes or unintended behavior.
+
+    Memory Management:
+        If you attempt to delete the tree inside the Rebuild Tree command, the subsequent operations (like collectValues) operate on an already-deleted object, causing undefined behavior or segmentation faults.
+
+Improved Approach
+
+Instead of deleting and recreating the tree entirely, clear the current structure before rebuilding it. Here’s a step-by-step solution:
+1. Add a clear Method
+
+This method recursively deletes all children and clears the values and children of the current node.
+
+template <class DT>
+void MTree<DT>::clear() {
+    // Delete all children recursively
+    for (auto child : children) {
+        delete child;
+    }
+    children.clear();
+    values.clear();
+}
+
+2. Update Rebuild Tree to Use clear
+
+Modify the Rebuild Tree (case 'B') logic to use the clear method:
+
+case 'B': // Rebuild Tree
+{
+    // Collect current values
+    vector<int> myValues = myTree->collectValues();
+
+    // Clear the current tree
+    myTree->clear();
+
+    // Rebuild the tree
+    myTree->buildTree(myValues);
+
+    cout << "The tree has been rebuilt." << endl;
+    break; 
+}
+
+3. Ensure Proper Recursive Memory Cleanup in the Destructor
+
+Make sure your destructor handles memory cleanup recursively to prevent memory leaks. You already have a destructor that deletes children, but here’s a clean implementation:
+
+template <class DT>
+MTree<DT>::~MTree() {
+    clear(); // Use the clear method for consistent cleanup
+}
+
+4. Debugging the Output
+
+If values are still being duplicated, you might want to verify:
+
+    collectValues: Ensure that no values are added more than once.
+    buildTree: Double-check the logic for assigning values and children during reconstruction.
+
+To debug:
+
+    Print the myValues vector after calling collectValues in the rebuild process.
+    Verify that values in internal nodes are set correctly when rebuilding.
+
+Expected Output After Fix
+
+The output should no longer show duplicated values in the internal nodes. Each rebuild operation will correctly clear the tree and reconstruct it without duplicating or reusing old nodes.
+
+Let me know if this resolves your issue or if further refinements are needed!
+You said:
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    if ( !values.empty() ) 
+    {
+        values.clear();
+    }
+
+    if ( !children.empty() ) 
+    {
+        for (int i = 0; i < children.size(); ++i)
+        {
+            delete children[i];
+        }
+        children.clear();
+    }
+}
+
+how does this look
+ChatGPT said:
+ChatGPT
+
+Your destructor looks reasonable but can be streamlined and improved for clarity and maintainability. Here's an analysis:
+Issues in Current Implementation
+
+    Unnecessary empty() Checks:
+        The clear() method of std::vector is safe to call even on an empty vector, so the !values.empty() and !children.empty() checks are unnecessary.
+
+    Verbose Loop:
+        The loop that deletes children can be simplified using a range-based for loop for better readability.
+
+    Order of Cleanup:
+        children.clear() is called after deleting child pointers. This is correct, but it’s worth noting explicitly why: to avoid dangling pointers.
+
+Improved Destructor
+
+Here’s a simplified and clean version of your destructor:
+
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    // Delete all child nodes
+    for (auto child : children) {
+        delete child;
+    }
+    children.clear(); // Clear the vector of child pointers
+    
+    values.clear();   // Clear the vector of values
+}
+
+Why This is Better
+
+    Safety:
+        The delete operation handles null pointers gracefully, so there’s no need to check if children is empty.
+        Similarly, std::vector::clear() is safe to call even if the vector is empty.
+
+    Readability:
+        Using a range-based for loop makes the code easier to read and less prone to off-by-one errors.
+
+    Maintainability:
+        The destructor focuses solely on its job (cleaning up resources) without redundant checks.
+
+Additional Considerations
+
+    Recursive Deletion:
+        If MTree objects are deeply nested (many levels of children), this destructor will traverse the entire tree and clean it up properly.
+        However, if you suspect a very deep tree, consider testing for stack overflow due to recursive calls.
+    Use of clear:
+        You can reuse the clear method in your destructor to centralize cleanup logic:
+
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    clear(); // Call the clear method to handle cleanup
+}
+
+Final Recommendation
+
+The improved destructor is simple, efficient, and safe. It ensures proper cleanup without unnecessary checks or redundant code.
+You said:
+the clear() made errors so i removed it
+ChatGPT said:
+ChatGPT
+
+If the clear() method caused errors in your implementation, it’s likely because of how it was defined or used. When implementing a clear() method, it's important to avoid recursion issues or double deletions. Let’s break down how you might have implemented clear() and why errors could occur.
+Potential Problems with clear()
+
+    Recursion Errors:
+        If clear() was recursively deleting nodes and calling itself, this could lead to infinite recursion or stack overflow.
+
+    Double Deletion:
+        If clear() attempted to delete children and the destructor was also doing the same, it could lead to double-deletion errors.
+
+    Order of Operations:
+        If clear() accessed resources (like children or values) after they were already cleared, it would cause undefined behavior.
+
+Correct clear() Implementation
+
+Here’s a safe way to implement a clear() method that complements the destructor:
+
+template <class DT>
+void MTree<DT>::clear() 
+{
+    // Delete all child nodes
+    for (auto child : children) {
+        delete child; // Recursively delete child nodes
+    }
+    children.clear(); // Clear the children vector
+    
+    values.clear();   // Clear the values vector
+}
+
+Updated Destructor Using clear()
+
+With the above clear() method, the destructor would be:
+
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    clear(); // Use clear to handle resource cleanup
+}
+
+Why This Should Work
+
+    Centralized Cleanup Logic:
+        By using a dedicated clear() method, you avoid duplicating cleanup code in multiple places.
+
+    Avoids Recursion Errors:
+        The clear() method itself is not recursive; it deletes children but does not call itself.
+
+    Safe Resource Management:
+        The destructor simply delegates cleanup to clear(), ensuring consistent and error-free behavior.
+
+If clear() Still Causes Errors
+
+If using clear() still leads to errors, it’s essential to debug the exact problem. Here’s how:
+
+    Check for Double Deletions:
+        Ensure that clear() isn’t being called twice (e.g., once explicitly and once via the destructor).
+
+    Check Object Lifetimes:
+        Verify that you’re not using the tree after it’s been deleted or cleared.
+
+    Enable Debugging Tools:
+        Use tools like Valgrind or sanitizers (e.g., -fsanitize=address in GCC/Clang) to check for memory issues.
+
+    Test in Isolation:
+        Test the clear() method independently to ensure it works without causing issues.
+
+If you want, I can help analyze the exact error you're encountering with clear(). Feel free to share any error messages or details!
+You said:
+i called it in main like you said, it worked fine first few iterations, then it would allocated massive negative numbers ( random numbers) when rebuilding the tree which would lead to a messed up tree.
+ChatGPT said:
+ChatGPT
+
+The issue you're describing—random or invalid data appearing when rebuilding the tree—suggests that either:
+
+    Undefined Behavior: Memory isn't being properly initialized, or you're inadvertently accessing uninitialized or dangling pointers.
+    Incorrect Data Handling: The collectValues() or buildTree() method might be introducing errors during the tree reconstruction process.
+
+Let’s debug and resolve the issue systematically.
+1. Debugging collectValues()
+
+Ensure collectValues() is returning valid and correctly sorted data. For example:
+
+template <class DT>
+vector<DT> MTree<DT>::collectValues() 
+{
+    vector<DT> collectedValues;
+
+    if (this->isLeaf()) {
+        collectedValues.insert(collectedValues.end(), values.begin(), values.end());
+    } else {
+        for (int i = 0; i < children.size(); i++) {
+            if (children[i] != nullptr) {
+                vector<DT> childValues = children[i]->collectValues();
+                collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
+            }
+        }
+    }
+
+    return collectedValues;
+}
+
+Checkpoints:
+
+    Verify no uninitialized values are returned.
+    Print the collected values to ensure they match expectations:
+
+vector<int> myValues = myTree->collectValues();
+cout << "Collected values: ";
+for (int val : myValues) cout << val << " ";
+cout << endl;
+
+2. Debugging buildTree()
+
+Errors during tree reconstruction often arise from mishandling input values. Ensure buildTree() splits and assigns values correctly.
+
+Key points to validate:
+
+    The inputValues vector remains intact after splitting.
+    Internal and child nodes are constructed correctly.
+
+Updated implementation:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    // Reset current node
+    values.clear();
+    children.clear();
+
+    if (inputValues.size() <= M - 1) { // Base case: Leaf node
+        values = inputValues;
+    } else {
+        int chunkSize = inputValues.size() / M; // Divide into M chunks
+        for (int i = 0; i < M; i++) {
+            int start = i * chunkSize;
+            int end = (i == M - 1) ? inputValues.size() : (start + chunkSize);
+
+            if (i < M - 1) { 
+                values.push_back(inputValues[end - 1]); // Internal values
+            }
+
+            vector<DT> childValues(inputValues.begin() + start, inputValues.begin() + end);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(childValues);
+            children.push_back(child);
+        }
+    }
+}
+
+Checkpoints:
+
+    Validate the values and children vectors after rebuilding.
+    Print intermediate values during tree construction:
+
+cout << "Building node with values: ";
+for (int val : values) cout << val << " ";
+cout << endl;
+
+3. Double-Check Memory Management
+
+If random data appears, it might indicate memory corruption due to mishandled pointers or uninitialized variables.
+Destructor
+
+Ensure the destructor properly deallocates memory without leaving dangling pointers. After clear():
+
+    Nullify pointers (children[i] = nullptr).
+    Avoid re-using deleted objects.
+
+Calling clear()
+
+Call clear() only when necessary. In buildTree(), don’t call clear() unnecessarily—it should only reset the state of a node being reused.
+4. Print Debugging for Random Numbers
+
+Track where the invalid values appear:
+
+    Before Rebuilding: Print the output of collectValues() to ensure it matches the current tree state.
+
+    cout << "Before rebuilding: ";
+    for (int val : myValues) cout << val << " ";
+    cout << endl;
+
+    During Tree Construction: Log intermediate node states in buildTree().
+
+    After Rebuilding: Print the structure of the rebuilt tree to verify correctness.
+
+5. Use Address Sanitizers
+
+Compile with sanitizers to catch memory errors:
+
+    GCC/Clang: Add -fsanitize=address -g flags to your g++ command.
+    Run the program and inspect logs for any issues with memory access.
+
+Example Workflow in main
+
+case 'B': // Rebuild Tree
+{
+    vector<int> myValues = myTree->collectValues();
+    cout << "Collected values: ";
+    for (int val : myValues) cout << val << " ";
+    cout << endl;
+
+    myTree->clear();  // Ensure proper cleanup
+    myTree->buildTree(myValues); 
+
+    cout << "The tree has been rebuilt." << endl;
+    break;
+}
+
+Final Thoughts
+
+    Validate intermediate states at every step (collectValues, buildTree).
+    Avoid unnecessary memory operations (e.g., multiple clear() calls).
+    Use sanitizers or debugging tools to catch subtle memory issues.
+
+If the issue persists, feel free to share additional details or specific cases where the tree fails, and we can refine further!
+You said:
+those methods are fine. the issue here is when i rebuild the tree i need to either check for duplicates or delete the old tree i went for delete old tree for simpliity but of course nothing is fucking s imple so it causes all kinds of erros, seg faults, random memory allocation snd all kinds of bullshit.
+ChatGPT said:
+ChatGPT
+
+It sounds like the root of the problem lies in how you're deleting the old tree before rebuilding. Deleting the old tree can indeed be tricky if it's not done carefully because improper deletion can lead to dangling pointers, use-after-free issues, and other memory corruption problems.
+
+Let’s address this systematically to ensure the old tree is deleted cleanly, without introducing memory errors:
+Steps to Safely Delete and Rebuild the Tree
+
+    Ensure Proper Destruction of the Old Tree The destructor must handle memory cleanup without leaving dangling pointers. If your destructor currently deletes child nodes recursively, it should also:
+        Set children[i] to nullptr after deletion.
+        Clear the children vector after the loop.
+
+    Example destructor:
+
+    template <class DT>
+    MTree<DT>::~MTree() 
+    {
+        for (MTree* child : children) {
+            delete child; // Safely delete child nodes
+            child = nullptr; // Nullify to avoid dangling pointers
+        }
+        children.clear(); // Clear vector
+    }
+
+    Tip: Use smart pointers like std::unique_ptr for children if feasible to manage memory automatically.
+
+    Use a Dedicated clear() Method Add a clear() method to safely deallocate memory and reset the tree state without re-implementing the destructor logic.
+
+    template <class DT>
+    void MTree<DT>::clear() 
+    {
+        for (MTree* child : children) {
+            delete child; // Recursively delete child nodes
+        }
+        children.clear(); // Remove all pointers from the vector
+        values.clear();   // Reset values in the current node
+    }
+
+    This ensures that memory is deallocated cleanly and the tree is reset to an empty state.
+
+    Safely Rebuild the Tree After clearing the old tree, the buildTree() method should reconstruct it from scratch. Call clear() first to clean up before adding new nodes.
+
+    Example:
+
+    template <class DT>
+    void MTree<DT>::rebuildTree(const vector<DT>& inputValues) 
+    {
+        clear();             // Delete old tree
+        buildTree(inputValues); // Build new tree
+    }
+
+    Guard Against Duplicates If the input to buildTree() contains duplicates that shouldn't exist in the tree, filter them out before rebuilding. Use a std::set to remove duplicates.
+
+#include <set>
+#include <vector>
+#include <algorithm>
+
+template <class DT>
+vector<DT> removeDuplicates(const vector<DT>& input) 
+{
+    std::set<DT> uniqueSet(input.begin(), input.end());
+    return vector<DT>(uniqueSet.begin(), uniqueSet.end());
+}
+
+Then, modify your rebuildTree() call:
+
+    vector<DT> uniqueValues = removeDuplicates(inputValues);
+    rebuildTree(uniqueValues);
+
+    Check for Common Errors
+        Reusing Freed Nodes: Ensure that no other part of the program holds references to deleted nodes.
+        Double Deletion: Verify that you're not deleting the same memory twice (e.g., deleting child nodes before clear() is called).
+
+    Debugging Tips
+        Log All Operations: Add logs to clear(), buildTree(), and ~MTree() to track when memory is being deallocated or nodes are being rebuilt.
+        Use Valgrind/ASAN: These tools will pinpoint memory issues like invalid reads, writes, and double deletions.
+        Check Pointer Validity: Set all pointers to nullptr after deletion to prevent accidental reuse.
+
+Example in main
+
+Here’s a sample workflow for deleting and rebuilding the tree:
+
+case 'B': // Rebuild Tree
+{
+    vector<int> collectedValues = myTree->collectValues();
+    cout << "Collected values: ";
+    for (int val : collectedValues) cout << val << " ";
+    cout << endl;
+
+    myTree->rebuildTree(collectedValues); // Safely delete and rebuild
+
+    cout << "The tree has been rebuilt successfully." << endl;
+    break;
+}
+
+Common Pitfalls
+
+    Dangling Pointers: If other parts of your program hold references to deleted nodes, you'll encounter undefined behavior. Ensure all references are cleared before rebuilding.
+    Partial Deletion: If any child node isn’t deleted properly in clear(), the program may attempt to access freed memory.
+
+By using clear() and properly handling memory in your destructor, the process should become reliable and free from crashes or invalid memory access. Let me know if issues persist!
+You said:
+[caleb@archlinux project4]$ g++ project4.cpp
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+
+
+#include <vector> 
+#include <iostream> 
+using namespace std; 
+
+//________________________________________________ SUMMARY ________________________________________________//
+/*
+  Summary:
+    This file is for Data Structures Project 4. The file follows the structure
+    listed immediately below.
+
+  Organization:
+    1. Summary
+    2. Exceptions
+    3. Prototype
+    4. Implementation
+    5. Testing
+    6. Debug Plan
+    7. LLM Usage
+
+  Quehacer:
+    --------------
+    1. search()
+    2. findChild()
+    3. find()
+    --------------
+    4. splitNode()
+    5. insert()
+    6. remove()
+    --------------
+*/
+
+
+//_______________________________________________ EXCEPTIONS ______________________________________________//
+class Exception {};
+class DuplicateInsertion : public Exception {};
+class NotFoundException : public Exception {};
+
+//_______________________________________________ PROTOTYPE _______________________________________________//
+
+template <class DT> 
+class MTree 
+{ 
+protected: 
+    int M;                       // Maximum number of children per node (M way split) 
+    vector<DT> values;          // Values stored in the node (M-1 values) 
+    vector<MTree*> children;    // Pointers to child MTrees (M children) 
+
+public: 
+    MTree(int M); 
+    ~MTree(); 
+
+    bool isLeaf() const;                      // Check if the current node is a leaf 
+    void splitNode();                         // Split the node if it exceeds capacity (i.e >=M) 
+
+    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
+    MTree<DT>* search(const DT& value);       // Interal searching function.
+    vector<DT> collectValues();              // Collect values from all leaf nodes  
+
+    void buildTree(const vector<DT>& inputValues);   // Build the tree  
+
+    bool find(DT& value);             // Find a value from the MTree
+    void insert(const DT& value);     // Insert a value into the MTree
+    void remove(const DT& value);     // Remove a value from the MTree 
+};
+
+
+//____________________________________________ IMPLEMENTATION _____________________________________________//
+
+// Constructs a new node with M-1 values and M slots for children.
+template <class DT>
+MTree<DT>::MTree(int M) 
+{
+    this->M = M;
+}
+
+// Destructor for tree nodes.
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    for (MTree* child : children) 
+    {
+        delete child; // Safely delete child nodes
+        child = nullptr; // Nullify to avoid dangling pointers
+    }
+    values.clear();
+    children.clear(); // Clear vector
+}
+
+
+// Checks if the current node is a leaf.
+template <class DT>
+bool MTree<DT>::isLeaf() const 
+{
+    if ( children.empty() ) 
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// Splits a node, used for balancing the tree.
+template <class DT>
+void MTree<DT>::splitNode() 
+{
+    return; 
+}
+
+// Finds the correct child to follow? <- probably for traversal??
+template <class DT>
+MTree<DT>* MTree<DT>::findChild(const DT& value) 
+{
+    return nullptr;
+}
+
+// Internal Searching method, returns pointer to node if found.
+template <class DT>
+MTree<DT>* MTree<DT>::search(const DT& value) 
+{
+    // If the node is a leaf, then check its values and return this or null.
+    if ( this->isLeaf() )
+    {
+        cout << "\nSearching leaf: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << values[i] << " ";
+                return this;
+            }
+        }
+    }
+    else // if the node is an internal, check against values, and traverse.
+    {
+        ///////////////////////////////////////////////////////////
+        cout << "\nSearching Internal: ";
+        for (const auto& val : values) cout << val << " ";
+        cout << "\nNumber of children: " << children.size() << "\n";
+        ///////////////////////////////////////////////////////////
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (value <= values[i] && values[i] != 0) 
+            {
+                cout << values[i] << " ";
+                return children[i]->search(value);
+            }
+        }
+        return children[values.size()]->search(value); // if its the largest value in node, then search that direction.
+    }
+    return nullptr;
+}
+
+// collects and returns a sorted list of the nodes in the tree.
+template <class DT>
+vector<DT> MTree<DT>::collectValues() // according to GPT, modern c++ compilers optimize this return by value.
+{
+    // Vector to store collected values from the leaf nodes.
+    vector<int> collectedValues;  
+
+    // If the current node is a leaf, collect its values.
+    if (this->isLeaf()) 
+    {
+        //cout << "In a leaf node.\n";
+        // Loop through and collect the values from this leaf.
+        for (int i = 0; i < M-1; ++i) 
+        {
+            if (this->values[i] != 0)
+            {
+                collectedValues.push_back( this->values[i] );
+            }
+        }
+    }
+    else 
+    {
+        //cout << "\nIn an internal node.\n";
+        // If not a leaf, we need to recursively collect values from children
+        for (int i = 0; i < M; ++i) 
+        {
+            //cout << this->values[i] << " ";
+            // Recursively collect values from the child nodes
+            if (this->children[i] != nullptr) 
+            {
+                vector<DT> childValues = this->children[i]->collectValues();
+                collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
+            }
+            //else cout << "Child is nullptr" << endl;
+        }
+    }
+
+    return collectedValues;
+}
+
+// Builds tree from a given a vector of values.
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            // The if else statements create child nodes
+            int start = D * i;
+            //cout << "start: " << start << " - ";
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+                //cout << "end: " << end << endl;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                //cout << "end: " << end << endl;
+                values.push_back(inputValues[end]); // pushes the last value of each chunk into values for the internal nodes.
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // calls the build tree on the newly created child
+            children.push_back(child); // pushes the child to the children vector of the current node
+        }
+    }
+}
+
+// Checks if a node is present in the tree.
+template <class DT>
+bool MTree<DT>::find(DT& value) 
+{
+    if ( search(value) != nullptr) 
+    {
+        return true;
+    }
+    else
+    {
+        throw NotFoundException();
+        return false;
+    }
+}
+
+// Inserts a value into the tree.
+template <class DT>
+void MTree<DT>::insert(const DT& value) 
+{
+    // can throw a DuplicateInsertion exception.
+    return;
+}
+
+// Removes a node from the tree.
+template <class DT>
+void MTree<DT>::remove(const DT& value) 
+{
+    return;
+}
+
+
+//________________________________________________ TESTING ________________________________________________//
+int main(int argc, char** argv) 
+{
+    int n;              // Count of numbers to stores in initial tree.
+    int MValue;         // M value for the tree (number of children) (M-1 values in each node)
+    int numCommands;    // Number of commands in the program.
+    char command;       // Variable to store the type of each command.
+    int value;          // Variable to store the values associated with each command.
+    
+    // Read the size of the values array and define the array.
+    cin >> n;
+    vector<int> mySortedValues(n);
+ 
+    // Read numbers from input and store in a sorted array.
+    for (int i = 0; i < n; ++i) 
+    {
+        cin >> value;
+        mySortedValues[i] = value;
+    } 
+
+    // Read in the MValue and create the root of the tree.
+    cin >> MValue;
+    MTree<int>* myTree = new MTree<int>(MValue);
+
+    // Build the intitial tree.
+    myTree->buildTree(mySortedValues);
+
+    // Read in the number of commands.
+    cin >> numCommands;
+
+    /******* Process the Commands ********/
+    for (int i = 0; i < numCommands; i++) 
+    {
+        cin >> command; // Read the command type.
+        switch (command) // Switch based on command.
+        {
+            case 'I': // Insert
+            {
+                cin >> value;
+                try 
+                { 
+                    myTree->insert(value); 
+                } 
+                catch (DuplicateInsertion& e) { 
+                    cout << "The value = " << value << " already in the tree." << endl;
+                } 
+                break; 
+            }  
+            case 'R': // Remove  
+            {  
+                cin >> value; 
+                try 
+                { 
+                    myTree->remove(value); 
+                    cout << "The value = " << value << " has been removed." << endl;
+                }  
+                catch (NotFoundException& e) 
+                { 
+                    cout << "The value = " << value << " not found." << endl;
+                } 
+                break; 
+            } 
+            case 'F': // Find
+            { 
+                cin >> value; 
+                try 
+                {
+                    myTree->find(value);
+                    cout << "The element with value = " << value << " was found." << endl; 
+                }
+                catch (NotFoundException& e) 
+                {
+                    cout << "The element with value = " << value << " not found." << endl; 
+                } 
+                break; 
+            } 
+            case 'B': // Rebuild Tree
+            {
+                vector<int> myValues = myTree->collectValues();
+                delete myTree;
+                myTree = nullptr;
+                myTree = new MTree<int>(MValue);
+                myTree->buildTree(myValues); 
+                cout << "The tree has been rebuilt." << endl;
+                break; 
+            } 
+            default: 
+            {
+                cout << "Invalid command!" << endl; 
+            }
+        } 
+    }
+
+    // Print out the final list.
+    cout << "Final list: ";
+    mySortedValues = myTree->collectValues();
+    for (int i = 0; i < mySortedValues.size(); ++i) 
+    {
+        cout << mySortedValues[i] << " ";
+    }
+    cout << endl;
+
+    // End of program
+    delete myTree; 
+    return 0;
+}Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 4
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 4
+
+Searching Internal: 827 889 945 
+Number of children: 4
+945 
+Searching Internal: 906 921 934 
+Number of children: 4
+921 
+Searching leaf: 921 The element with value = 921 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 233 439 661 
+Number of children: 4
+
+Searching Internal: 5 858 5 
+Number of children: 4
+
+Searching Internal: 945 964 985 
+Number of children: 4
+945 
+Searching Internal: 934 936 939 
+Number of children: 4
+934 
+Searching leaf: The element with value = 879 not found.
+The tree has been rebuilt.
+The value = 635 has been removed.
+The value = 531 has been removed.
+The value = 509 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 747 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 984 has been removed.
+The tree has been rebuilt.
+The value = 408 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+
+Searching Internal: 30974 5 30974 
+Number of children: 4
+30974 
+Searching Internal: 913341216 5 913341216 
+Number of children: 4
+913341216 
+Searching Internal: 30974 30974 913341216 
+Number of children: 4
+30974 
+Searching Internal: 913341216 913341216 5 
+Number of children: 4
+913341216 
+Searching Internal: 5 913341232 30974 
+Number of children: 4
+913341232 
+Searching Internal: 913341264 913341216 913341216 
+Number of children: 4
+913341264 
+Searching leaf: The element with value = 635 not found.
+The tree has been rebuilt.
+The value = 758 has been removed.
+The tree has been rebuilt.
+
+Searching Internal: 5 913341216 30974 
+Number of children: 4
+913341216 
+Searching Internal: 913341216 5 913341216 
+Number of children: 4
+913341216 
+Searching Internal: 913341216 30974 5 
+Number of children: 4
+913341216 
+Searching Internal: 30974 913341216 913341216 
+Number of children: 4
+30974 
+Searching Internal: 30974 30974 5 
+Number of children: 4
+30974 
+Searching Internal: 30974 5 5 
+Number of children: 4
+30974 
+Searching Internal: 30974 22127 913341216 
+Number of children: 4
+30974 
+Searching leaf: The element with value = 441 not found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+^C
+[caleb@archlinux pr
+ChatGPT said:
+ChatGPT
+
+The output and the behavior of your program suggest an issue with memory management during tree rebuilding. Specifically, the appearance of random large numbers (e.g., 913341216) and repeated values (e.g., 30974) is symptomatic of uninitialized memory being accessed or reused improperly. Let’s break it down and address the root causes.
+Identified Issues and Fixes
+1. Memory Issues During Rebuild
+
+When you delete and rebuild the tree repeatedly:
+
+    The delete operation clears memory, but if any dangling pointers to old tree nodes exist, the program may access invalid or corrupted data.
+    Reinitializing myTree without properly cleaning up its children can cause unexpected behavior.
+
+Fix: Improve buildTree and clear Logic Ensure that:
+
+    buildTree doesn’t leave any uninitialized values in the tree.
+    Nodes are cleaned up entirely before reallocation.
+
+Modify buildTree:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    // Reset values and children before building.
+    values.clear();
+    for (auto* child : children) {
+        delete child;
+    }
+    children.clear();
+
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // Divide inputValues into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end = (i == M - 1) ? inputValues.size() - 1 : start + D - 1;
+
+            if (i < M - 1)
+                values.push_back(inputValues[end]); // Internal node values
+
+            // Create and build the child node
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values);
+            children.push_back(child);
+        }
+    }
+}
+
+2. Clear the Tree Properly
+
+The tree nodes should be cleared cleanly to avoid memory leaks or dangling references.
+
+Fix: Add a clear() Method
+
+template <class DT>
+void MTree<DT>::clear() 
+{
+    for (auto* child : children) {
+        if (child) {
+            child->clear();
+            delete child;
+        }
+    }
+    children.clear();
+    values.clear();
+}
+
+Call clear() before deleting the tree in your main function or buildTree().
+3. Rebuild the Tree
+
+When rebuilding, ensure the tree is reset to a clean state before reinserting values. This is handled by the modified buildTree and clear() methods. Update the main rebuild logic:
+
+case 'B': // Rebuild Tree
+{
+    vector<int> myValues = myTree->collectValues();
+    myTree->clear();  // Safely clear the tree
+    myTree->buildTree(myValues); 
+    cout << "The tree has been rebuilt." << endl;
+    break;
+}
+
+4. Random Numbers in Output
+
+This occurs because values or children vectors are either not initialized properly or corrupted during tree operations.
+
+Fix: Use Debugging Tools
+
+    Add assertions to verify that operations like push_back, clear, and delete are performed correctly.
+    Compile and run with tools like Valgrind or AddressSanitizer:
+
+    g++ -g -fsanitize=address project4.cpp -o project4
+    ./project4 < input/input1.txt
+
+5. Handling Edge Cases
+
+Ensure your program handles cases like:
+
+    An empty input to buildTree.
+    Rebuilding a tree multiple times in a row.
+    Removing values that don't exist.
+
+Testing Plan
+
+    Tree Initialization
+        Test with a variety of values, including edge cases like empty input or a single value.
+
+    Rebuilding
+        Rebuild the tree multiple times in succession and verify the structure after each rebuild.
+
+    Memory Management
+        Use Valgrind or ASAN to check for memory leaks or invalid memory access.
+
+    Stress Test
+        Provide large datasets to ensure the tree handles memory and operations efficiently.
+
+By implementing these fixes and conducting thorough testing, the issues with random memory values and tree corruption should be resolved. Let me know if you encounter any specific edge cases!
+You said:
+269 -778081504 -778081504 31269 5 -778081504 -778081504 5 5 5 31269 5 -778081504 -778081504 -778081504 31269 5 -778081504 31269 -778081504 -778081504 31269 -778081504 31269 31269 -778081504 5 -778081504 5 5 5 5 5 5 5 -778081504 22249 5 -778081504 31269 5 31269 -778081504 31269 -778081504 5 -778081504 31269 5 -778081504 31269 5 5 -778081504 5 5 5 31269 5 5 -778081504 31269 -778081504 5 -778081504 5 5 -778081504 5 31269 5 31269 5 5 -778081504 -778081504 31269 5 5 -778081504 5 5 -778081504 5 5 31269 5 5 5 -778081504 5 31269 5 31269 -778081504 5 -778081504 5 5 31269 -778081504 31269 5 -778081504 5 5 31269 31269 -778081504 5 5 -778081504 5 5 5 -778081504 5 5 5 5 31269 5 5 -778081504 -778081504 31269 5 5 5 5 -778081504 -778081504 -778081504 5 5 5 5 31269 -778081504 5 5 31269 5 -778081504 31269 5 5 -778081504 5 5 31269 5 31269 5 -778081504 5 -778081504 31269 5 -778081504 5 5 5 -778081504 31269 5 31269 5 -778081504 5 5 -778081504 31269 5 -778081504 5 -778081504 5 5 5 5 31269 5 5 5 -778081504 5 31269 -778081504 31269 5 5 -778081504 5 -778081504 -778081504 5 5 5 31269 5 31269 5 -778081504 5 5 5 31269 -778081504 5 31269 5 5 5 5 5 31269 -778081504 -778081504 31269 -778081504 -778081504 5 31269 5 5 31269 -778081504 -778081504 5 31269 -778081504 -778081504 5 5 31269 5 5 -778081504 31269 -778081504 5 -778081504 5 31269 -778081504 5 5 31269 -778081504 5 31269 -778081504 5 5 31269 -778081504 -778081504 5 5 5 5 -778081504 31269 -688738832 5 31269 -778081504 -688738848 -778081504 31269 -778081504 5 -778081504 5 31269 5 5 31269 5 -778081504 5 5 5 5 31269 5 5 5 -778081504 5 -778081504 5 5 5 5 31269 5 5 -778081504 31269 31269 5 31269 5 -778081504 -778081504 -778081504 5 31269 5 5 5 5 5 5 -778081504 31269 -778081504 5 31269 -778081504 5 31269 31269 -778081504 -778081504 5 5 -778081504 5 5 5 5 5 -778081504 5 -778081504 -778081504 -778081504 5 -778081504 5 -778081504 -778081504 -778081504 5 5 -778081504 31269 31269 5 -778081504 5 5 5 -778081504 31269 31269 5 -778081504 31269 5 5 -778081504 5 5 -778081504 5 31269 31269 5 5 -778081504 5 -778081504 -778081504 5 5 5 -778081504 5 31269 5 5 5 5 5 -778081504 5 -688733616 31269 -778081504 -778081504 31269 -778081504 -778081504 22249 5 31269 5 5 5 31269 -778081504 5 5 5 5 5 -778081504 -778081504 31269 -778081504 -778081504 5 31269 -778081504 -778081504 5 5 5 -778081504 5 -778081504 31269 31269 5 5 5 -778081504 5 -778081504 5 5 31269 -778081504 22249 31269 31269 5 -778081504 5 31269 31269 -778081504 -778081504 5 -778081504 31269 5 31269 5 5 5 5 31269 5 5 5 -778081504 5 5 -778081504 -778081504 5 5 5 -778081504 5 -778081504 31269 5 -778081504 5 31269 -778081504 5 31269 5 5 5 -778081504 5 5 -778081504 5 5 31269 5 5 5 5 5 31269 -778081504 31269 5 5 -778081504 5 5 -778081504 -778081504 5 5 5 5 31269 31269 -778081504 5 5 5 5 31269 31269 31269 5 5 5 -778081504 5 -778081504 5 31269 5 5 -778081504 31269 31269 5 5 5 5 -778081504 5 31269 5 -778081504 5 5 -778081504 -778081504 31269 5 5 31269 5 5 5 31269 5 5 5 5 -778081504 5 5 -778081504 -778081504 31269 5 -778081504 5 5 5 -778081504 5 5 31269 5 5 -778081504 5 5 5 5 5 5 5 5 -778081504 5 5 5 5 31269 5 5 5 31269 -778081504 5 5 -778081504 31269 5 5 -778081504 31269 5 -778081504 31269 5 31269 31269 -778081504 -778081504 5 5 5 5 -778081504 5 5 5 31269 5 5 -778081504 5 5 5 31269 -778081504 31269 31269 -778081504 5 5 -778081504 5 31269 -778081504 5 5 5 5 31269 -778081504 31269 -778081504 31269 5 31269 -778081504 -778081504 -778081504 5 31269 5 -778081504 5 5 5 -778081504 5 5 5 5 22249 5 31269 5 5 -778081504 5 31269 -778081504 5 -778081504 5 5 5 5 31269 5 31269 5 31269 5 -778081504 5 -778081504 5 5 5 5 5 5 31269 -778081504 -778081504 5 31269 31269 5 31269 5 -778081504 -778081504 5 -778081504 -778081504 5 31269 31269 -778081504 5 -778081504 5 5 -778081504 5 5 5 5 31269 31269 5 5 5 -778081504 -778081504 31269 -778081504 31269 -778081504 5 31269 31269 -778081504 31269 5 5 -778081504 5 5 -778081504 5 5 5 5 -778081504 31269 -778081504 5 31269 31269 5 -778081504 5 5 5 31269 -778081504 5 -778081504 5 5 5 5 -778081504 5 31269 5 31269 -778081504 -778081504 5 31269 -778081504 31269 31269 -778081504 5 5 5 31269 5 -778081504 5 5 31269 5 -778081504 5 -778081504 31269 5 31269 5 -778081504 5 5 31269 -778081504 5 31269 5 31269 5 31269 5 5 -778081504 5 5 5 -778081504 -778081504 5 31269 -778081504 5 31269 -778081504 5 31269 31269 31269 5 -778081504 31269 -778081504 5 5 5 5 5 31269 5 -778081504 5 5 5 5 5 -778081504 5 5 472 31269 -778081504 5 31269 5 5 31269 31269 31269 5 -778081504 5 5 31269 -778081504 5 5 5 31269 5 5 31269 -778081504 5 5 5 5 -778081504 5 5 5 -778081504 31269 5 5 5 5 31269 31269 5 5 5 5 5 5 5 31269 5 5 5 -778081504 5 -778081504 5 31269 5 5 -778081504 5 31269 5 5 5 5 -778081504 5 -778081504 5 -778081504 5 31269 31269 5 31269 5 -778081504 5 5 -778081504 5 5 31269 5 5 5 5 5 -778081504 31269 5 5 5 31269 5 -778081504 31269 5 5 5 5 5 -778081504 5 31269 5 5 5 5 31269 5 -778081504 -778081504 5 5 5 5 5 31269 5 5 31269 5 5 -778081504 5 -778081504 31269 5 5 5 -778081504 5 -778081504 5 -778081504 5 5 5 31269 -778081504 5 5 -778081504 5 5 -778081504 5 5 5 31269 5 -778081504 -778081504 5 5 31269 5 31269 -778081504 5 -778081504 5 31269 5 5 -778081504 5 5 5 31269 5 -778081504 -778081504 31269 5 31269 -778081504 31269 31269 31269 -778081504 5 31269 5 -778081504 5 5 5 5 5 5 5 5 5 22249 5 5 5 31269 31269 5 -778081504 5 5 31269 5 31269 31269 5 5 -778081504 5 5 -778081504 31269 5 -778081504 5 31269 5 5 5 5 5 5 -778081504 -778081504 31269 -778081504 5 5 31269 -778081504 -778081504 5 -778081504 5 5 31269 -778081504 5 5 -778081504 5 5 5 5 5 5 5 -778081504 -778081504 5 -778081504 5 31269 31269 31269 -778081504 31269 -778081504 5 -778081504 5 5 5 5 31269 5 5 -778081504 5 -778081504 5 5 5 -778081504 31269 -778081504 5 -778081504 31269 5 31269 5 31269 5 -778081504 -778081504 5 -778081504 -778081504 5 5 5 5 31269 5 -778081504 5 5 5 -778081504 5 31269 5 31269 5 5 31269 -778081504 -778081504 5 -778081504 31269 5 31269 5 31269 -778081504 5 31269 5 5 31269 -778081504 -778081504 5 5 31269 5 5 5 31269 5 5 5 31269 -778081504 -778081504 5 31269 -778081504 31269 5 5 -778081504 5 31269 5 31269 5 -778081504 31269 5 -778081504 31269 5 -778081504 5 -778081504 5 5 5 5 31269 5 -778081504 5 -778081504 5 5 5 5 -778081504 31269 5 -778081504 -778081504 5 5 5 31269 5 -778081504 5 5 31269 5 5 5 5 -778081504 5 5 -778081504 5 31269 5 5 5 31269 -778081504 -778081504 5 5 5 5 31269 -778081504 -778081504 5 5 31269 5 31269 31269 -778081504 5 5 5 5 5 -778081504 5 5 5 5 -778081504 -778081504 31269 5 -778081504 5 5 -778081504 5 31269 5 -778081504 5 5 5 -778081504 -778081504 5 5 5 5 -778081504 5 31269 5 5 5 5 5 -778081504 5 5 -778081504 5 5 31269 5 5 -778081504 31269 5 5 5 5 5 5 31269 31269 5 -778081504 5 5 5 5 31269 5 5 5 5 5 -778081504 5 31269 5 5 5 -778081504 5 31269 5 31269 31269 5 -778081504 5 -778081504 5 31269 5 5 5 5 5 5 -778081504 
+ChatGPT said:
+ChatGPT
+
+It seems like you provided a long string of numbers and symbols, many of which repeat. Could you clarify what you're aiming to do with this information or if you have a specific question related to it? If it's part of a larger dataset or mathematical problem, I'd be happy to help analyze or process it further.
+You said:
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 4
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 4
+
+Searching Internal: 827 889 945 
+Number of children: 4
+945 
+Searching Internal: 906 921 934 
+Number of children: 4
+921 
+Searching leaf: 921 The element with value = 921 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 23333 439 661 
+Number of children: 4
+23333 
+Searching Internal: 55 23333 165 
+Number of children: 4
+23333 
+Searching Internal: 5 71 23333 
+Number of children: 4
+23333 
+Searching Internal: 23333 82 23333 
+Number of children: 4
+23333 
+Searching leaf: The element with value = 879 not found.
+The tree has been rebuilt.
+The value = 635 has been removed.
+The value = 531 has been removed.
+The value = 509 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 747 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 984 has been removed.
+The tree has been rebuilt.
+The value = 408 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+
+Searching Internal: 33516320 28866 5 
+Number of children: 4
+33516320 
+Searching Internal: 28866 5 33516320 
+Number of children: 4
+28866 
+Searching Internal: 33516320 28866 33516320 
+Number of children: 4
+33516320 
+Searching Internal: 33516352 5 5 
+Number of children: 4
+33516352 
+Searching Internal: 1755477536 5 33516320 
+Number of children: 4
+1755477536 
+Searching Internal: 28866 5 5 
+Number of children: 4
+28866 
+Searching leaf: The element with value = 635 not found.
+The tree has been rebuilt.
+The value = 758 has been removed.
+The tree has been rebuilt.
+
+Searching Internal: 28866 33516320 28866 
+Number of children: 4
+28866 
+Searching Internal: 33516320 33516320 33516320 
+Number of children: 4
+33516320 
+Searching Internal: 5 5 33516320 
+Number of children: 4
+33516320 
+Searching Internal: 33516320 5 5 
+Number of children: 4
+33516320 
+Searching Internal: 33516320 5 28866 
+Number of children: 4
+33516320 
+Searching Internal: 33516320 28866 5 
+Number of children: 4
+33516320 
+Searching Internal: 33516320 28866 33516320 
+Number of children: 4
+33516320 
+Searching leaf: The element with value = 441 not found.
+The tree has been rebuilt.
+^C
+ChatGPT said:
+ChatGPT
+
+It looks like the output you're showing is from a program that is performing searches within a tree structure (likely a B-tree or similar data structure) and is logging internal and leaf node searches, as well as tree rebuilds after certain operations (such as removing elements).
+Key Observations:
+
+    Internal Search:
+        The program searches through internal nodes of the tree, displaying sets of numbers (e.g., 273 507 746) and noting the "Number of children" (in this case, 4). This indicates a node in a tree with four child pointers.
+
+    Leaf Node Search:
+        When searching a leaf, it either finds or doesn't find the desired element (e.g., "The element with value = 385 was found").
+
+    Tree Rebuilds:
+        The tree is rebuilt after certain operations, such as removing elements (e.g., "The value = 577 has been removed").
+
+    Element Removal:
+        The program is actively removing specific values (e.g., "The value = 941 has been removed").
+
+    Interrupt:
+        The process was interrupted with a ^C (Ctrl + C), which means the program was manually stopped.
+
+What’s Happening:
+
+    Search Operations: The program performs searches at different levels of the tree. Internal searches check nodes with multiple child pointers (suggesting a balanced tree structure), while leaf searches are checking for specific data at the leaf level.
+
+    Rebuilding the Tree: After certain operations (like removing an element), the tree structure is reorganized or rebuilt, which could involve balancing or adjusting the structure.
+
+Next Steps:
+
+If you're trying to debug or analyze this output, consider:
+
+    Efficiency: The frequent tree rebuilds might be a performance issue if not optimized properly. Depending on your tree's balancing algorithm, excessive rebuilding may be inefficient.
+    Search Logic: If you're trying to verify the search process or troubleshoot why an element isn't found, you might want to look closer at the search path leading to each leaf node (it could involve an incorrect tree structure or missed updates).
+
+Would you like to investigate a specific part of this process, or is there a particular issue you're facing with this program?
+You said:
+can you check for duplicate sin a vector
+ChatGPT said:
+ChatGPT
+
+To check for duplicates in a vector (or array) in C++, you can use a variety of methods. Here are a few options:
+1. Using a Set:
+
+A simple and efficient way is to use a std::set. Since sets do not allow duplicates, you can insert the elements of the vector into the set and check if the insertion is successful.
+
+Here’s a basic example:
+
+#include <iostream>
+#include <vector>
+#include <set>
+
+bool hasDuplicates(const std::vector<int>& vec) {
+    std::set<int> uniqueElements;
+    for (int num : vec) {
+        // If the number already exists in the set, it's a duplicate
+        if (!uniqueElements.insert(num).second) {
+            return true;  // Duplicate found
+        }
+    }
+    return false;  // No duplicates
+}
+
+int main() {
+    std::vector<int> vec = {1, 2, 3, 4, 5, 6, 1};
+    
+    if (hasDuplicates(vec)) {
+        std::cout << "The vector has duplicates." << std::endl;
+    } else {
+        std::cout << "The vector has no duplicates." << std::endl;
+    }
+
+    return 0;
+}
+
+2. Using Sorting:
+
+Another way is to first sort the vector and then check for adjacent elements that are equal. This method works well but alters the original order of the vector.
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+bool hasDuplicates(std::vector<int>& vec) {
+    std::sort(vec.begin(), vec.end());
+    for (size_t i = 1; i < vec.size(); ++i) {
+        if (vec[i] == vec[i - 1]) {
+            return true;  // Duplicate found
+        }
+    }
+    return false;  // No duplicates
+}
+
+int main() {
+    std::vector<int> vec = {1, 2, 3, 4, 5, 6, 1};
+    
+    if (hasDuplicates(vec)) {
+        std::cout << "The vector has duplicates." << std::endl;
+    } else {
+        std::cout << "The vector has no duplicates." << std::endl;
+    }
+
+    return 0;
+}
+
+3. Using a Hash Map (unordered_map):
+
+If you want to track duplicates without sorting, you can use a hash map to count occurrences.
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+bool hasDuplicates(const std::vector<int>& vec) {
+    std::unordered_map<int, int> countMap;
+    for (int num : vec) {
+        if (countMap[num]++ > 0) {
+            return true;  // Duplicate found
+        }
+    }
+    return false;  // No duplicates
+}
+
+int main() {
+    std::vector<int> vec = {1, 2, 3, 4, 5, 6, 1};
+    
+    if (hasDuplicates(vec)) {
+        std::cout << "The vector has duplicates." << std::endl;
+    } else {
+        std::cout << "The vector has no duplicates." << std::endl;
+    }
+
+    return 0;
+}
+
+Explanation of Approaches:
+
+    Set: The set checks for duplicates during insertion and provides an efficient way to check for duplicates with average O(1) complexity per operation.
+    Sorting: Sorting the vector and then checking adjacent elements is a good option if you don’t mind changing the order of the elements, with a time complexity of O(n log n).
+    Hash Map: This approach uses an unordered map to count occurrences of elements. It's efficient with an average time complexity of O(n), but requires more memory due to the hash table.
+
+Which Approach to Choose?
+
+    If you want the most efficient and concise approach and don’t mind using extra memory, the set or unordered_map approach is recommended.
+    If you need to preserve the order of the vector and don’t mind sorting, the sorting method is a good alternative.
+
+Would you like help with implementing one of these approaches?
+You said:
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            // The if else statements create child nodes
+            int start = D * i;
+            //cout << "start: " << start << " - ";
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+                //cout << "end: " << end << endl;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                //cout << "end: " << end << endl;
+                values.push_back(inputValues[end]); // pushes the last value of each chunk into values for the internal nodes.
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // calls the build tree on the newly created child
+            children.push_back(child); // pushes the child to the children vector of the current node
+        }
+    }
+}
+
+can you make this check before ading dupliate values
+ChatGPT said:
+ChatGPT
+
+To check for duplicates before adding values to your values vector in the buildTree function, you can add a step to verify whether the value you're about to insert already exists. This will prevent duplicates from being added.
+
+Here's how you can modify your code:
+Updated Code with Duplicate Check:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                if (std::find(values.begin(), values.end(), valueToAdd) == values.end()) 
+                {
+                    // Value is not found, so add it
+                    values.push_back(valueToAdd);
+                }
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
+        }
+    }
+}
+
+Explanation of Changes:
+
+    Duplicate Check: Before adding a new value to values (which happens inside the else block), I added a check using std::find(). The std::find() function searches the vector values to see if the value (inputValues[end]) is already present. If the value is not found, the code proceeds to push it into the values vector.
+        std::find(values.begin(), values.end(), valueToAdd) checks if valueToAdd is already in the values vector.
+        If valueToAdd is not found, it returns an iterator to the end of the vector, and in that case, the value is added.
+
+Why Use std::find?
+
+    std::find is a simple way to search for an element in a vector. It performs a linear search, so its time complexity is O(n). Since the values vector is generally small in most tree-building scenarios, this approach is acceptable for avoiding duplicates.
+
+What Happens if a Duplicate is Found?
+
+If a duplicate is found (i.e., the value is already in values), the value is simply not added to the values vector, and the code continues processing the next chunk of the input.
+
+Let me know if you need further clarifications or modifications!
+You said:
+np match for std::find
+ChatGPT said:
+ChatGPT
+
+If you're getting an error like "no match for std::find", it's likely due to one of the following issues:
+
+    Missing Include for std::find: You need to include the <algorithm> header to use std::find.
+    Type Mismatch: Ensure that the type of the value in values and inputValues is consistent.
+
+Here's the updated code with the necessary include statement:
+Updated Code:
+
+#include <algorithm>  // Include this for std::find
+#include <vector>     // Make sure you have the vector include as well
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                if (std::find(values.begin(), values.end(), valueToAdd) == values.end()) 
+                {
+                    // Value is not found, so add it
+                    values.push_back(valueToAdd);
+                }
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
+        }
+    }
+}
+
+Key Changes:
+
+    Added Include for std::find: Make sure you have #include <algorithm> at the top of your file to access the std::find function.
+
+    Ensure Consistent Types: Verify that the type of elements in your values and inputValues vectors are consistent. For instance, if DT is a class type or a custom type, ensure that std::find can correctly compare elements. If DT is a complex type, you might need to define comparison operators (==) for it to work with std::find.
+
+Let me know if you're still encountering issues!
+You said:
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                bool alreadyExists = false;
+                for (DT val : values)
+                {
+                    if (valueToAdd == val)
+                        alreadyExists = true;
+                }
+                if (alreadyExists == false)
+                    values.push_back(valueToAdd);
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
+        }
+    }
+}
+
+this fixed all my issues except:
+
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 8
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 12
+
+Searching Internal: 819 881 936 
+Number of children: 4
+936 
+Searching Internal: 893 913 928 
+Number of children: 4
+928 
+Searching leaf: 921 The element with value = 921 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 273 507 
+
+
+it doesnt duplicate values, but the size of the values arrays seem to keep growing. can i limit them to the MValue
+ChatGPT said:
+ChatGPT
+
+It seems that the issue you're encountering is that the values vector keeps growing because you're adding values beyond the intended number of M-1 values per internal node. This happens because in your current implementation, you're adding values to the values vector without checking whether it exceeds M-1, which is the maximum number of values an internal node should hold.
+
+To resolve this, you can add a condition to limit the number of values in the internal node to M-1. Specifically, before adding a new value to values, you should check if the size of values has already reached M-1. If so, the new value should go to a child node instead of being added to values.
+Solution:
+
+    Limit the number of values in the internal node: Modify the logic inside the loop where you're adding the values. Ensure that values does not exceed M-1.
+
+    Create new internal nodes: If you reach the maximum number of M-1 values, create a new internal node to hold the overflow.
+
+Here's how you can adjust the code to enforce this constraint:
+Updated Code:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                bool alreadyExists = false;
+                for (DT val : values)
+                {
+                    if (valueToAdd == val)
+                        alreadyExists = true;
+                }
+
+                if (alreadyExists == false && values.size() < M) 
+                {
+                    values.push_back(valueToAdd); // Add value only if we haven't reached the max size
+                }
+                // If values have reached M-1, create a new child node
+                else if (values.size() >= M) 
+                {
+                    vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+                    MTree<DT>* child = new MTree<DT>(M);
+                    child->buildTree(child_values); // Recursively build the tree for the child
+                    children.push_back(child); // Add the child to the children vector
+                }
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
+        }
+    }
+}
+
+Key Changes:
+
+    Check if values.size() is less than M: Before adding a value to values, I added a condition to ensure that values doesn't grow beyond M-1.
+
+    Create child nodes when the internal node is full: If values.size() reaches M-1, the current node will stop accepting values, and the new values will be sent to a child node instead.
+
+    Ensure only M-1 values are in the internal node: This should prevent the values vector from growing uncontrollably and ensure the structure of your tree remains consistent with the M-1 limit.
+
+Let me know if this works for you or if you need further adjustments!
+You said:
+that code wont work, since the sizes are growing, but with empty values i guess
+ChatGPT said:
+ChatGPT
+
+You're right! My previous code might cause issues because it doesn't handle cases where empty MTree nodes are being created and their values vectors keep growing with empty values.
+
+Let's address the root cause more carefully:
+
+    The goal is to ensure that each internal node has a maximum of M-1 values in values. Once we reach M-1 values in the internal node, we should not add more values to the values vector of the current node.
+
+    Create a new child node once the values vector reaches the size limit (M-1) to store additional values.
+
+    We must also ensure that children only grows when new child nodes are added, so they do not contain unnecessary empty vectors.
+
+Let's improve the logic based on this approach:
+Updated Code:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+            }
+
+            // Create a vector of the current chunk
+            vector<DT> chunk(inputValues.begin() + start, inputValues.begin() + end + 1);
+            
+            // If the values vector has not yet reached the max size (M-1),
+            // add the last value of the chunk to the current node's values
+            if (values.size() < M - 1) 
+            {
+                for (DT value : chunk) 
+                {
+                    // Check if the value already exists in the values vector to prevent duplicates
+                    if (std::find(values.begin(), values.end(), value) == values.end()) 
+                    {
+                        values.push_back(value);  // Add unique values only
+                    }
+                }
+            }
+            else
+            {
+                // If values have reached M-1, create a new child node to hold the excess
+                MTree<DT>* child = new MTree<DT>(M);
+                child->buildTree(chunk); // Recursively build the tree for the chunk
+                children.push_back(child); // Add the child to the children vector
+            }
+        }
+    }
+}
+
+Key Changes and Explanation:
+
+    Handle values for internal nodes correctly: When values.size() is still less than M-1, we add values to the values vector, ensuring they are unique. We use std::find to check for duplicates before adding a new value.
+
+    Split the input into chunks: Each chunk is processed separately. Once values reaches its size limit (M-1), we stop adding values and start creating child nodes to handle the excess values.
+
+    Avoid unnecessary empty nodes: We ensure that only relevant values are stored in values. If there are more values than can be stored in the current node, they are pushed to child nodes without adding empty values to the current node.
+
+    Recursively build the tree for each child: We call buildTree on each chunk of the data to build the tree recursively, maintaining the correct structure.
+
+This approach ensures that values does not grow beyond the limit of M-1 and prevents the creation of unnecessary empty nodes in the tree. Let me know if this fixes the issue for you!
+You said:
+its actually the number of children that is the problem i just now noticed
+
+[caleb@archlinux project4]$ g++ project4.cpp
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 8
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 12
+
+Searching Internal: 819 881 936 
+Number of children: 4
+936 
+Searching Internal: 893 913 928 
+Number of children: 4
+928 
+Searching leaf: 921 The element with value = 921 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 273 507 746 
+Number of children: 20
+
+Searching Internal: 819 881 936 
+Number of children: 4
+881 
+Searching Internal: 845 861 871 
+Number of children: 4
+
+Searching leaf: 879 The element with value = 879 was found.
+The tree has been rebuilt.
+The value = 635 has been removed.
+The value = 531 has been removed.
+The value = 509 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 747 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 984 has been removed.
+The tree has been rebuilt.
+The value = 408 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+
+Searching Internal: 273 507 746 
+Number of children: 56
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+647 
+Searching Internal: 615 632 639 
+Number of children: 4
+639 
+Searching leaf: 635 The element with value = 635 was found.
+The tree has been rebuilt.
+The value = 758 has been removed.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 64
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+441 
+Searching Internal: 413 420 428 
+Number of children: 4
+
+Searching leaf: 441 The element with value = 441 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+
+
+do you think it counts children of chilrden and thats why?
+ChatGPT said:
+ChatGPT
+
+Yes, based on your description and the output, it seems that the issue could be related to how child nodes are being counted across different levels of the tree.
+Here's a breakdown of the potential issue:
+
+    Children of children being counted: From the output, the number of children increases exponentially, which suggests that your tree structure is not correctly limiting the number of children at each level. This might be because the children vector of each node is being expanded recursively, causing the total child count to reflect children at deeper levels, rather than just at the current level.
+
+    Recursive growth of children: When building the tree recursively, it looks like every time you add a child node, you might be inadvertently adding children at deeper levels too. This could cause the total number of children to grow rapidly as the tree deepens.
+
+What could be happening:
+
+When a new child is added to a node (in your code), you're correctly checking if the values vector is full and then recursively building the tree for the new child node. However, if the tree-building process at the child node continues adding more children at lower levels, those children are also counted as part of the parent node's child count.
+Suggested Fix:
+
+You should ensure that each node's child count only reflects direct children (not recursive descendants) by limiting child nodes at each level, especially for internal nodes.
+
+You may need to:
+
+    Control child creation: Only create child nodes when necessary, and ensure that when internal nodes are full, they don't overflow into more child nodes than necessary.
+    Check internal node conditions: Limit the number of children that can be added to each node, and stop adding children to nodes when they exceed the required capacity.
+
+Example Fix:
+
+To ensure that the tree does not create an excessive number of children, you can modify the logic to only split into child nodes if the values vector has too many elements for the current node.
+
+Here’s an updated version of your buildTree function that ensures no unnecessary child nodes are created:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+            }
+
+            // Create a vector of the current chunk
+            vector<DT> chunk(inputValues.begin() + start, inputValues.begin() + end + 1);
+            
+            // If the values vector has not yet reached the max size (M-1),
+            // add the last value of the chunk to the current node's values
+            if (values.size() < M - 1) 
+            {
+                for (DT value : chunk) 
+                {
+                    // Check if the value already exists in the values vector to prevent duplicates
+                    if (std::find(values.begin(), values.end(), value) == values.end()) 
+                    {
+                        values.push_back(value);  // Add unique values only
+                    }
+                }
+            }
+            else
+            {
+                // If values have reached M-1, create a new child node to hold the excess
+                MTree<DT>* child = new MTree<DT>(M);
+                child->buildTree(chunk); // Recursively build the tree for the chunk
+                children.push_back(child); // Add the child to the children vector
+
+                // Limit the number of children: If the number of children exceeds the maximum, break
+                if (children.size() >= M) {
+                    break; // Prevent adding more children than needed
+                }
+            }
+        }
+    }
+}
+
+Key Adjustments:
+
+    Limiting child creation: I've added a break statement to stop the creation of more children once we've reached the maximum number of allowed children (M). This helps avoid excessive child nodes at any level, ensuring that only the necessary child nodes are created.
+
+Conclusion:
+
+This fix ensures that:
+
+    You limit the number of children per node, preventing them from growing beyond the desired number.
+    You maintain the correct structure of the tree by not over-allocating child nodes.
+
+Give this a try and see if the number of children stabilizes!
+You said:
+so its in how they cunt children, the size of these children arrays are not growing somehow and will cause stack overflow right?
+ChatGPT said:
+ChatGPT
+
+Yes, you're correct in identifying that if the number of child nodes keeps growing without proper constraints, it could lead to an eventual stack overflow due to the exponential growth in recursive calls and the number of child nodes being added without limits.
+
+Here’s why that can happen:
+
+    Excessive child nodes: If the tree keeps adding child nodes recursively without properly limiting the number of children per node, it will result in an increasingly larger tree structure. Since each level creates more children, the tree can grow exponentially in size.
+
+    Uncontrolled recursion: This growth in the number of children per node will lead to more recursive calls to buildTree without returning or halting the process at appropriate points. As the recursion depth increases, the call stack gets larger, potentially leading to a stack overflow when there are too many recursive calls without reaching a base case or halting condition.
+
+Example of Stack Overflow Scenario:
+
+If at each level of recursion, you are adding children and there’s no constraint on the number of children, the recursion will continue indefinitely. For example, if you add children at every level, then the recursion will keep "spawning" deeper levels, creating child nodes without bound, and eventually, you’ll exhaust the stack memory.
+To prevent this:
+
+You need to ensure two things:
+
+    Control the number of children: Limit the number of child nodes that each parent node can have (often with a max of M children per internal node).
+    Avoid unnecessary recursion: Make sure the recursion terminates correctly by adding a base case for when further recursion is not needed (i.e., when the current node has enough values or has reached the leaf level).
+
+Specific Fix:
+
+    Control the number of child nodes: In the buildTree function, ensure that you do not add more than M children to any internal node. This will ensure that the tree remains balanced and doesn’t grow out of control.
+    Avoid stack overflow: Once a node has enough children (i.e., after M children), stop further recursive creation of children for that node.
+
+Here's an adjusted version of the buildTree function to prevent these issues:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;  // Assign the values to the current node (leaf node)
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // Calculate how to split the input values
+        for (int i = 0; i < M && children.size() < M; i++)  // Limit the number of children
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+            }
+
+            // Create a vector of values for the child node (internal node)
+            vector<DT> chunk(inputValues.begin() + start, inputValues.begin() + end + 1);
+            
+            // Add unique values to the current node's values, if space allows
+            if (values.size() < M - 1) 
+            {
+                for (DT value : chunk) 
+                {
+                    if (std::find(values.begin(), values.end(), value) == values.end()) 
+                    {
+                        values.push_back(value);  // Add unique values to the node
+                    }
+                }
+            }
+            else
+            {
+                // If values are full, create a new child and recurse
+                MTree<DT>* child = new MTree<DT>(M);
+                child->buildTree(chunk);  // Recursively build the tree for the child
+                children.push_back(child); // Add the child node to the parent node's children
+            }
+
+            // Prevent further recursion if children have reached the maximum limit
+            if (children.size() >= M) 
+            {
+                break;
+            }
+        }
+    }
+}
+
+Key Changes:
+
+    Limit on the number of children: for (int i = 0; i < M && children.size() < M; i++) ensures that you don't create more than M child nodes per internal node.
+
+    Stop unnecessary recursion: The recursion will terminate once the maximum number of children (M) is reached, which should stop the exponential growth in children.
+
+Conclusion:
+
+By controlling the number of child nodes and ensuring that recursion halts when the tree is sufficiently populated, you will prevent the stack overflow from occurring due to excessive recursion and child creation. This will also help prevent the size of the children arrays from growing indefinitely.
+
+Let me know if you need further clarification!
+You said:
+[caleb@archlinux project4]$ g++ project4.cpp
+[caleb@archlinux project4]$ ./a.out < input/input1.txt
+
+Searching Internal: 273 507 746 
+Number of children: 4
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+406 
+Searching Internal: 364 385 394 
+Number of children: 4
+385 
+Searching leaf: 385 The element with value = 385 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 8
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+559 
+Searching Internal: 519 531 547 
+Number of children: 4
+519 
+Searching leaf: 509 The element with value = 509 was found.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 12
+
+Searching Internal: 819 881 936 
+Number of children: 4
+936 
+Searching Internal: 893 913 928 
+Number of children: 4
+928 
+Searching leaf: 921 The element with value = 921 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+The value = 941 has been removed.
+The value = 721 has been removed.
+The value = 406 has been removed.
+
+Searching Internal: 273 507 746 
+Number of children: 20
+
+Searching Internal: 819 881 936 
+Number of children: 4
+881 
+Searching Internal: 845 861 871 
+Number of children: 4
+
+Searching leaf: 879 The element with value = 879 was found.
+The tree has been rebuilt.
+The value = 635 has been removed.
+The value = 531 has been removed.
+The value = 509 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 747 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 984 has been removed.
+The tree has been rebuilt.
+The value = 408 has been removed.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 577 has been removed.
+
+Searching Internal: 273 507 746 
+Number of children: 56
+746 
+Searching Internal: 559 603 647 
+Number of children: 4
+647 
+Searching Internal: 615 632 639 
+Number of children: 4
+639 
+Searching leaf: 635 The element with value = 635 was found.
+The tree has been rebuilt.
+The value = 758 has been removed.
+The tree has been rebuilt.
+
+Searching Internal: 273 507 746 
+Number of children: 64
+507 
+Searching Internal: 344 406 441 
+Number of children: 4
+441 
+Searching Internal: 413 420 428 
+Number of children: 4
+
+Searching leaf: 441 The element with value = 441 was found.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The tree has been rebuilt.
+The value = 478 has been removed.
+Final list: 5 8 10 13 14 35 37 40 46 51 53 55 63 65 66 69 71 82 83 86 92 98 100 113 121 123 124 125 134 135 151 160 164 165 167 179 180 186 191 197 206 229 230 233 237 241 248 249 5 252 273 282 284 285 295 296 301 304 322 328 331 341 344 348 351 364 368 382 385 392 393 394 403 404 406 408 409 413 415 419 420 424 427 428 435 439 441 442 444 447 455 460 466 471 472 474 478 496 498 5 502 507 509 514 519 522 526 531 538 542 547 548 553 559 560 564 565 569 574 576 577 583 584 587 592 603 605 607 615 623 628 632 634 635 639 640 645 647 650 661 674 688 689 692 697 709 714 721 729 734 5 735 746 747 757 758 768 775 777 779 786 797 800 818 819 827 837 845 846 858 861 864 865 871 879 880 881 886 889 893 896 906 913 920 921 928 932 934 936 939 941 945 946 951 961 964 975 981 984 985 986 5 987 989 
+
+#include <vector> 
+#include <iostream> 
+using namespace std; 
+
+//________________________________________________ SUMMARY ________________________________________________//
+/*
+  Summary:
+    This file is for Data Structures Project 4. The file follows the structure
+    listed immediately below.
+
+  Organization:
+    1. Summary
+    2. Exceptions
+    3. Prototype
+    4. Implementation
+    5. Testing
+    6. Debug Plan
+    7. LLM Usage
+
+  Quehacer:
+    --------------
+    1. search()
+    2. findChild()
+    3. find()
+    --------------
+    4. splitNode()
+    5. insert()
+    6. remove()
+    --------------
+*/
+
+
+//_______________________________________________ EXCEPTIONS ______________________________________________//
+class Exception {};
+class DuplicateInsertion : public Exception {};
+class NotFoundException : public Exception {};
+
+//_______________________________________________ PROTOTYPE _______________________________________________//
+
+template <class DT> 
+class MTree 
+{ 
+protected: 
+    int M;                       // Maximum number of children per node (M way split) 
+    vector<DT> values;          // Values stored in the node (M-1 values) 
+    vector<MTree*> children;    // Pointers to child MTrees (M children) 
+
+public: 
+    MTree(int M); 
+    ~MTree(); 
+
+    bool isLeaf() const;                      // Check if the current node is a leaf 
+    void splitNode();                         // Split the node if it exceeds capacity (i.e >=M) 
+
+    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
+    MTree<DT>* search(const DT& value);       // Interal searching function.
+    vector<DT> collectValues();              // Collect values from all leaf nodes  
+
+    void buildTree(const vector<DT>& inputValues);   // Build the tree  
+
+    bool find(DT& value);             // Find a value from the MTree
+    void insert(const DT& value);     // Insert a value into the MTree
+    void remove(const DT& value);     // Remove a value from the MTree 
+};
+
+
+//____________________________________________ IMPLEMENTATION _____________________________________________//
+
+// Constructs a new node with M-1 values and M slots for children.
+template <class DT>
+MTree<DT>::MTree(int M) 
+{
+    this->M = M;
+}
+
+// Destructor for tree nodes.
+template <class DT>
+MTree<DT>::~MTree() 
+{
+    for (MTree* child : children) 
+    {
+        delete child; // Safely delete child nodes
+        child = nullptr; // Nullify to avoid dangling pointers
+    }
+    values.clear();
+    children.clear(); // Clear vector
+}
+
+
+// Checks if the current node is a leaf.
+template <class DT>
+bool MTree<DT>::isLeaf() const 
+{
+    if ( children.empty() ) 
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// Splits a node, used for balancing the tree.
+template <class DT>
+void MTree<DT>::splitNode() 
+{
+    return; 
+}
+
+// Finds the correct child to follow? <- probably for traversal??
+template <class DT>
+MTree<DT>* MTree<DT>::findChild(const DT& value) 
+{
+    return nullptr;
+}
+
+// Internal Searching method, returns pointer to node if found.
+template <class DT>
+MTree<DT>* MTree<DT>::search(const DT& value) 
+{
+    // If the node is a leaf, then check its values and return this or null.
+    if ( this->isLeaf() )
+    {
+        cout << "\nSearching leaf: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << values[i] << " ";
+                return this;
+            }
+        }
+    }
+    else // if the node is an internal, check against values, and traverse.
+    {
+        ///////////////////////////////////////////////////////////
+        cout << "\nSearching Internal: ";
+        for (const auto& val : values) cout << val << " ";
+        cout << "\nNumber of children: " << children.size() << "\n";
+        ///////////////////////////////////////////////////////////
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (value <= values[i] && values[i] != 0) 
+            {
+                cout << values[i] << " ";
+                return children[i]->search(value);
+            }
+        }
+        return children[values.size()]->search(value); // if its the largest value in node, then search that direction.
+    }
+    return nullptr;
+}
+
+// collects and returns a sorted list of the nodes in the tree.
+template <class DT>
+vector<DT> MTree<DT>::collectValues() // according to GPT, modern c++ compilers optimize this return by value.
+{
+    // Vector to store collected values from the leaf nodes.
+    vector<int> collectedValues;  
+
+    // If the current node is a leaf, collect its values.
+    if (this->isLeaf()) 
+    {
+        //cout << "In a leaf node.\n";
+        // Loop through and collect the values from this leaf.
+        for (int i = 0; i < M-1; ++i) 
+        {
+            if (this->values[i] != 0)
+            {
+                collectedValues.push_back( this->values[i] );
+            }
+        }
+    }
+    else 
+    {
+        //cout << "\nIn an internal node.\n";
+        // If not a leaf, we need to recursively collect values from children
+        for (int i = 0; i < M; ++i) 
+        {
+            //cout << this->values[i] << " ";
+            // Recursively collect values from the child nodes
+            if (this->children[i] != nullptr) 
+            {
+                vector<DT> childValues = this->children[i]->collectValues();
+                collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
+            }
+            //else cout << "Child is nullptr" << endl;
+        }
+    }
+
+    return collectedValues;
+}
+
+// Builds tree from a given a vector of values.
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues;
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                bool alreadyExists = false;
+                for (DT val : values)
+                {
+                    if (valueToAdd == val)
+                        alreadyExists = true;
+                }
+                if (alreadyExists == false)
+                    values.push_back(valueToAdd);
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M);
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
+        }
+    }
+}
+
+
+// Checks if a node is present in the tree.
+template <class DT>
+bool MTree<DT>::find(DT& value) 
+{
+    if ( search(value) != nullptr) 
+    {
+        return true;
+    }
+    else
+    {
+        throw NotFoundException();
+        return false;
+    }
+}
+
+// Inserts a value into the tree.
+template <class DT>
+void MTree<DT>::insert(const DT& value) 
+{
+    // can throw a DuplicateInsertion exception.
+    return;
+}
+
+// Removes a node from the tree.
+template <class DT>
+void MTree<DT>::remove(const DT& value) 
+{
+    return;
+}
+
+
+//________________________________________________ TESTING ________________________________________________//
+int main(int argc, char** argv) 
+{
+    int n;              // Count of numbers to stores in initial tree.
+    int MValue;         // M value for the tree (number of children) (M-1 values in each node)
+    int numCommands;    // Number of commands in the program.
+    char command;       // Variable to store the type of each command.
+    int value;          // Variable to store the values associated with each command.
+    
+    // Read the size of the values array and define the array.
+    cin >> n;
+    vector<int> mySortedValues(n);
+ 
+    // Read numbers from input and store in a sorted array.
+    for (int i = 0; i < n; ++i) 
+    {
+        cin >> value;
+        mySortedValues[i] = value;
+    } 
+
+    // Read in the MValue and create the root of the tree.
+    cin >> MValue;
+    MTree<int>* myTree = new MTree<int>(MValue);
+
+    // Build the intitial tree.
+    myTree->buildTree(mySortedValues);
+
+    // Read in the number of commands.
+    cin >> numCommands;
+
+    /******* Process the Commands ********/
+    for (int i = 0; i < numCommands; i++) 
+    {
+        cin >> command; // Read the command type.
+        switch (command) // Switch based on command.
+        {
+            case 'I': // Insert
+            {
+                cin >> value;
+                try 
+                { 
+                    myTree->insert(value); 
+                } 
+                catch (DuplicateInsertion& e) { 
+                    cout << "The value = " << value << " already in the tree." << endl;
+                } 
+                break; 
+            }  
+            case 'R': // Remove  
+            {  
+                cin >> value; 
+                try 
+                { 
+                    myTree->remove(value); 
+                    cout << "The value = " << value << " has been removed." << endl;
+                }  
+                catch (NotFoundException& e) 
+                { 
+                    cout << "The value = " << value << " not found." << endl;
+                } 
+                break; 
+            } 
+            case 'F': // Find
+            { 
+                cin >> value; 
+                try 
+                {
+                    myTree->find(value);
+                    cout << "The element with value = " << value << " was found." << endl; 
+                }
+                catch (NotFoundException& e) 
+                {
+                    cout << "The element with value = " << value << " not found." << endl; 
+                } 
+                break; 
+            } 
+            case 'B': // Rebuild Tree
+            {
+                vector<int> myValues = myTree->collectValues();
+                myTree->buildTree(myValues); 
+                cout << "The tree has been rebuilt." << endl;
+                break; 
+            } 
+            default: 
+            {
+                cout << "Invalid command!" << endl; 
+            }
+        } 
+    }
+
+    // Print out the final list.
+    cout << "Final list: ";
+    mySortedValues = myTree->collectValues();
+    for (int i = 0; i < mySortedValues.size(); ++i) 
+    {
+        cout << mySortedValues[i] << " ";
+    }
+    cout << endl;
+
+    // End of program
+    delete myTree; 
+    return 0;
+}
+
+lets zoom out and re anayze this, why are the children arrays growing past their limits? yet the tree structure seems to stay in tact?
+ChatGPT said:
+ChatGPT
+
+It seems like the issue of the children arrays growing past their limits lies in the way the tree's nodes and children are managed, particularly in the buildTree function. Here's a breakdown of the situation and the potential issues:
+Key Points to Consider
+
+    The Tree Structure: The tree structure remains intact, which suggests that the nodes are being split or linked correctly when they grow. However, the size of the children vector in the nodes is growing beyond the expected limit. The children vector is supposed to hold at most M children per node, but we are seeing values greater than M.
+
+    The buildTree Function: When constructing the tree, you're using the following logic to build child nodes:
+        You split the inputValues into M parts and attempt to create a child node for each part.
+        After building the child node, it’s added to the children vector of the current node.
+        The tree is supposed to be constructed recursively, but it seems the children vector is not properly restricted to the maximum number M as expected.
+
+Issue Explanation
+
+In the buildTree function, you loop over M iterations and create M child nodes without checking if the number of children exceeds M. This means that each node may accumulate more than M children because the loop condition for (int i = 0; i < M; i++) does not ensure the children vector will not exceed M.
+
+for (int i = 0; i < M; i++) 
+{
+    int start = D * i;
+    int end;
+
+    if (i == M - 1) 
+    {
+        end = inputValues.size() - 1;
+    } 
+    else 
+    {
+        end = start + D - 1;
+    }
+
+    // Add the child node
+    vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+    MTree<DT>* child = new MTree<DT>(M);
+    child->buildTree(child_values); // Recursively build the tree for the child
+    children.push_back(child); // Add the child to the current node's children
+}
+
+What's happening here:
+
+    No check on the size of children: This loop will always run for M iterations, regardless of how many children are already present in the node.
+    Each iteration adds a new child to the children vector, without considering whether it exceeds the maximum M children per node.
+
+The Problem:
+
+    The children vector does not have any bounds checking to ensure it does not exceed M. As a result, after many recursive calls, the number of children grows well beyond M, causing the tree structure to be inconsistent with the expected M-way balanced tree.
+
+Solution:
+
+To fix this, you need to ensure that each node will only hold at most M children. You can do this by:
+
+    Limiting the number of children that can be added at each level.
+    Breaking the loop once the children vector reaches its size limit.
+
+Updated buildTree Function:
+
+You should add a condition inside the loop that ensures you do not exceed M children:
+
+template <class DT>
+void MTree<DT>::buildTree(const vector<DT>& inputValues) 
+{
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
+    {
+        values = inputValues; // Store the values in this node if it's a leaf
+    } 
+    else 
+    {
+        int D = inputValues.size() / M; // Divide input values into roughly M chunks
+        for (int i = 0; i < M && children.size() < M; i++) // Limit the number of children
+        {
+            int start = D * i;
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+            }
+
+            // Create child node's value vector
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
+            MTree<DT>* child = new MTree<DT>(M); 
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child node to the children vector
+
+            // If the number of children exceeds M, break the loop
+            if (children.size() >= M) 
+            {
+                break;
+            }
+        }
+    }
+}
+
+What's changed:
+
+    The condition && children.size() < M inside the for loop ensures that no more than M child nodes are added.
+    The break; statement ensures that we stop adding children once the maximum limit of M children has been reached.
+
+Result:
+
+    The children vector will no longer grow past M, and the tree will respect the maximum allowed children per node.
+    The tree structure will remain balanced, and no child node will have more than M children, ensuring the tree behaves as expected.
+
+Final Consideration:
+
+This fix addresses the main issue of uncontrolled growth in the children vector. It’s also a good idea to further investigate and ensure that any logic in other functions (e.g., insert, remove, splitNode) respects the M constraint, which could prevent future issues with tree balance or structure.

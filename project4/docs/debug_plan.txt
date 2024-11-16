@@ -24,12 +24,14 @@ Specific Tests:
     I just needed to put an if statement to catch zero values when collected and skip over them, and boom,
     we were collecting values from the tree correctly and were able to verify that the buildTree() method
     works correctly as well. <- this was mind breaking/numbing lol. but we got it.
+
 --------------------------------------------------------------------------------------------------
 Issues and Resolutions:
   Whilst writing the collectValues() method, there were issues with segmentation faults based
   on how I was accessing variables and returing others. I was able to fix this by carefully 
   analyzing the variable types and making them the most logical and flexible they could be while
   also applying and not causing more segmentation faults on access.
+  
 --------------------------------------------------------------------------------------------------
 Verification:
   // how the program was eventually verified to be working correctly.

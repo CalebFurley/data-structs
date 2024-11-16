@@ -19,10 +19,6 @@ using namespace std;
 
   Quehacer:
     --------------
-    1. search()
-    2. findChild()
-    3. find()
-    --------------
     4. splitNode()
     5. insert()
     6. remove()
@@ -52,7 +48,7 @@ public:
     bool isLeaf() const;                      // Check if the current node is a leaf 
     void splitNode();                         // Split the node if it exceeds capacity (i.e >=M) 
 
-    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow  
+    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow
     MTree<DT>* search(const DT& value);       // Interal searching function.
     vector<DT> collectValues();              // Collect values from all leaf nodes  
 
@@ -77,16 +73,15 @@ MTree<DT>::MTree(int M)
 template <class DT>
 MTree<DT>::~MTree() 
 {
-    if ( !values.empty() ) 
+    for (MTree* child : children) 
     {
-        values.clear();
+        delete child; // Safely delete child nodes
+        child = nullptr; // Nullify to avoid dangling pointers
     }
-
-    if ( !children.empty() ) 
-    {
-        children.clear();
-    }
+    values.clear();
+    children.clear(); // Clear vector
 }
+
 
 // Checks if the current node is a leaf.
 template <class DT>
@@ -109,23 +104,50 @@ void MTree<DT>::splitNode()
     return; 
 }
 
-// Finds the correct child to follow? <- probably for traversal??
+// Finds the correct child to follow
 template <class DT>
 MTree<DT>* MTree<DT>::findChild(const DT& value) 
 {
+    // this method is unused, I loop over the children and
+    // traverse in each method for simplicity. using this
+    // method would complicate stuff too much...
     return nullptr;
 }
 
-// Internally searches the tree for a node. <- should be internal??
+// Internal Searching method, returns pointer to node if found.
 template <class DT>
 MTree<DT>* MTree<DT>::search(const DT& value) 
 {
-    //for (int i = 0; i < M; ++i)
-    //{
-    //   if (value == values[i] then found) break;
-    //   if (value < values[i] then traverse) break;
-    //   else continue;
-    //}
+    // If the node is a leaf, then check its values and return this or null.
+    if ( this->isLeaf() )
+    {
+        cout << "\nSearching leaf: ";
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (values[i] == value)
+            {
+                cout << values[i] << " ";
+                return this;
+            }
+        }
+    }
+    else // if the node is an internal, check against values, and traverse.
+    {
+        ///////////////////////////////////////////////////////////
+        cout << "\nSearching Internal: ";
+        for (const auto& val : values) cout << val << " ";
+        cout << "\nNumber of children: " << children.size() << "\n";
+        ///////////////////////////////////////////////////////////
+        for (int i = 0; i < values.size(); ++i)
+        {
+            if (value <= values[i] && values[i] != 0) 
+            {
+                cout << values[i] << " ";
+                return children[i]->search(value);
+            }
+        }
+        return children[values.size()]->search(value); // if its the largest value in node, then search that direction.
+    }
     return nullptr;
 }
 
@@ -151,10 +173,11 @@ vector<DT> MTree<DT>::collectValues() // according to GPT, modern c++ compilers 
     }
     else 
     {
-        //cout << "In an internal node.\n";
+        //cout << "\nIn an internal node.\n";
         // If not a leaf, we need to recursively collect values from children
         for (int i = 0; i < M; ++i) 
         {
+            //cout << this->values[i] << " ";
             // Recursively collect values from the child nodes
             if (this->children[i] != nullptr) 
             {
@@ -181,31 +204,37 @@ void MTree<DT>::buildTree(const vector<DT>& inputValues)
         int D = inputValues.size() / M; // chunks the input_values into M sections
         for (int i = 0; i < M; i++) 
         {
-            // The if else statements create child nodes
             int start = D * i;
-            //cout << "start: " << start << " - ";
             int end;
 
             if (i == M - 1) 
             {
                 end = inputValues.size() - 1;
-                //cout << "end: " << end << endl;
             } 
             else 
             {
                 end = start + D - 1;
-                //cout << "end: " << end << endl;
-                values.push_back(inputValues[end]); // pushes the last value of each chunk into values for the internal nodes.
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                bool alreadyExists = false;
+                for (DT val : values)
+                {
+                    if (valueToAdd == val)
+                        alreadyExists = true;
+                }
+                if (alreadyExists == false)
+                    values.push_back(valueToAdd);
             }
 
             // Internal Node, Recursive Case
             vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
             MTree<DT>* child = new MTree<DT>(M);
-            child->buildTree(child_values); // calls the build tree on the newly created child
-            children.push_back(child); // pushes the child to the children vector of the current node
+            child->buildTree(child_values); // Recursively build the tree for the child
+            children.push_back(child); // Add the child to the children vector of the current node
         }
     }
 }
+
 
 // Checks if a node is present in the tree.
 template <class DT>
