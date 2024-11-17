@@ -23,7 +23,7 @@ Specific Tests:
     coulnt traverse past the root becuse the root's children were nullptrs..) Once that was fixed,
     I just needed to put an if statement to catch zero values when collected and skip over them, and boom,
     we were collecting values from the tree correctly and were able to verify that the buildTree() method
-    works correctly as well. <- this was mind breaking/numbing lol. but we got it.
+    works correctly as well.
 
 --------------------------------------------------------------------------------------------------
 Issues and Resolutions:
@@ -32,7 +32,15 @@ Issues and Resolutions:
   analyzing the variable types and making them the most logical and flexible they could be while
   also applying and not causing more segmentation faults on access.
   
+  There were also many issues with nodes not being found that existed, or ndoes not existing that should,
+  and it was hard to debug past a certain point since chat gpt had started generating alot of extra code,
+  and all my handwritten code did make since why it wouldnt work. But through lots and lots and checking
+  and cout << to track errors I was able to track and fix them.
+
 --------------------------------------------------------------------------------------------------
 Verification:
-  // how the program was eventually verified to be working correctly.
+  The verifcation of the program came from looking for difference in the programs output with the
+  the given output. This was all generated via the given main function. I also tested by manually 
+  adding print statements to check where values were going and how they were being handled. And lastly
+  the gradescope checks were used for final verifcation of the output of the program.
 --------------------------------------------------------------------------------------------------

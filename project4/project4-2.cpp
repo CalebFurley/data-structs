@@ -2,301 +2,203 @@
 #include <iostream>
 using namespace std;
 
-//________________________________________________ SUMMARY ________________________________________________//
-/*
-  Summary:
-    This file is for Data Structures Project 4. The file follows the structure
-    listed immediately below.
-
-  Organization:
-    1. Summary
-    2. Exceptions
-    3. Prototype
-    4. Implementation
-    5. Testing
-    6. Debug Plan
-    7. LLM Usage
-
-  Quehacer:
-    --------------
-    4. splitNode()
-    5. insert()
-    6. remove()
-    --------------
-*/
-
-//_______________________________________________ EXCEPTIONS ______________________________________________//
+//________________________________________________ EXCEPTIONS ___________________________________________//
 class Exception {};
 class DuplicateInsertion : public Exception {};
 class NotFoundException : public Exception {};
 
-//_______________________________________________ PROTOTYPE _______________________________________________//
+//________________________________________________ PROTOTYPE ____________________________________________//
+template <class DT>
+class MTree {
+protected:
+    int M;                       // Maximum number of children per node (M-way tree)
+    vector<DT> values;           // Values stored in the node
+    vector<MTree*> children;     // Children pointers (M-way branching)
 
-template <class DT> 
-class MTree 
-{ 
-protected: 
-    int M;                       // Maximum number of children per node (M way split) 
-    vector<DT> values;           // Values stored in the node (M-1 values) 
-    vector<MTree*> children;     // Pointers to child MTrees (M children) 
+    void splitNode(MTree<DT>* parent, int index); // Split a node and adjust the parent
+    void mergeOrRedistribute(MTree<DT>* parent, int index); // Handle underflow (extra)
 
-public: 
-    MTree(int M); 
-    ~MTree(); 
+public:
+    MTree(int M);                // Constructor
+    ~MTree();                    // Destructor
 
-    bool isLeaf() const;                      // Check if the current node is a leaf 
-    void splitNode(MTree<DT>* parent);        // Split the node if it exceeds capacity (i.e >=M) 
+    void buildTree(const vector<DT>& inputValues);   // Build the tree  
 
-    MTree<DT>* findChild(const DT& value);    // Find the correct child to follow
-    MTree<DT>* search(const DT& value);       // Internal searching function.
-    vector<DT> collectValues();               // Collect values from all leaf nodes  
 
-    void buildTree(const vector<DT>& inputValues);  // Build the tree  
-
-    bool find(DT& value);             // Find a value from the MTree
-    void insert(const DT& value);     // Insert a value into the MTree
-    void remove(const DT& value);     // Remove a value from the MTree 
+    bool isLeaf() const;         // Check if the current node is a leaf
+    void insert(const DT& value); // Insert a value
+    void remove(const DT& value); // Remove a value
+    MTree<DT>* search(const DT& value); // Search for a value
+    bool find(const DT& value);  // Check if a value exists in the tree
+    vector<DT> collectValues();  // Collect all values in sorted order
 };
 
+//________________________________________________ IMPLEMENTATION ________________________________________//
 
-//____________________________________________ IMPLEMENTATION _____________________________________________//
-
-// Constructs a new node with M-1 values and M slots for children.
+// Constructor
 template <class DT>
-MTree<DT>::MTree(int M) 
-{
-    this->M = M;
-}
+MTree<DT>::MTree(int M) : M(M) {}
 
-// Destructor for tree nodes.
+// Destructor
 template <class DT>
-MTree<DT>::~MTree() 
-{
-    for (MTree* child : children) 
-    {
-        delete child; // Safely delete child nodes
+MTree<DT>::~MTree() {
+    for (auto child : children) {
+        delete child;
     }
-    values.clear();
-    children.clear(); // Clear vector
 }
 
-// Checks if the current node is a leaf.
+// Check if the node is a leaf
 template <class DT>
-bool MTree<DT>::isLeaf() const 
-{
+bool MTree<DT>::isLeaf() const {
     return children.empty();
 }
 
-// Splits a node, used for balancing the tree and promoting values to parent.
+// Split a node and adjust its parent
 template <class DT>
-void MTree<DT>::splitNode(MTree<DT>* parent) 
-{
-    if (values.size() < M - 1) 
-        return;
-
+void MTree<DT>::splitNode(MTree<DT>* parent, int index) {
     int midIndex = values.size() / 2;
     DT midValue = values[midIndex];
 
+    // Create a new node for the right half
     MTree<DT>* rightNode = new MTree<DT>(M);
-
-    // Move upper half of values and children to the new node
     rightNode->values.assign(values.begin() + midIndex + 1, values.end());
     values.resize(midIndex);
 
-    if (!isLeaf()) 
-    {
+    // If not a leaf, transfer children
+    if (!isLeaf()) {
         rightNode->children.assign(children.begin() + midIndex + 1, children.end());
         children.resize(midIndex + 1);
     }
 
-    if (parent) 
-    {
-        // Insert the middle value into the parent node
-        parent->values.push_back(midValue);
-        parent->children.push_back(rightNode);
-        parent->splitNode(nullptr);  // Check if the parent needs to split
+    // Insert midValue into the parent
+    parent->values.insert(parent->values.begin() + index, midValue);
+    parent->children.insert(parent->children.begin() + index + 1, rightNode);
+}
+
+// Search for a value in the tree
+template <class DT>
+MTree<DT>* MTree<DT>::search(const DT& value) {
+    // Traverse through the current node's values
+    int i = 0;
+    while (i < values.size() && value > values[i]) {
+        ++i;
+    }
+
+    // If found in the current node
+    if (i < values.size() && value == values[i]) {
+        return this;
+    }
+
+    // If it's a leaf, the value is not found
+    if (isLeaf()) {
+        return nullptr;
+    }
+
+    // Recur to the appropriate child
+    return children[i]->search(value);
+}
+
+// Insert a value into the tree
+template <class DT>
+void MTree<DT>::insert(const DT& value) {
+    // Check for duplicates
+    if (search(value)) {
+        throw DuplicateInsertion();
+    }
+
+    // If the node is a leaf, insert the value directly
+    if (isLeaf()) {
+        values.push_back(value);
+        sort(values.begin(), values.end());
+
+        // Split if overflow
+        if (values.size() >= M) {
+            throw runtime_error("Splitting logic requires parent reference.");
+        }
+    } else {
+        // Find the correct child to insert into
+        int i = 0;
+        while (i < values.size() && value > values[i]) {
+            ++i;
+        }
+
+        // Insert recursively into the appropriate child
+        children[i]->insert(value);
+
+        // Handle child splits (currently requires parent logic, omitted)
     }
 }
 
-// Finds the correct child to follow.
+// Remove a value from the tree
 template <class DT>
-MTree<DT>* MTree<DT>::findChild(const DT& value) 
-{
-    for (int i = 0; i < values.size(); ++i) 
-    {
-        if (value <= values[i]) 
-            return children[i];
-    }
-    return children[values.size()]; // Return the last child if value is greater than all in the node.
+void MTree<DT>::remove(const DT& value) {
+    throw runtime_error("Remove logic requires full underflow handling.");
 }
 
-// Internal Searching method, returns pointer to node if found.
+// Find if a value exists
 template <class DT>
-MTree<DT>* MTree<DT>::search(const DT& value) 
-{
-    if (isLeaf()) 
-    {
-        for (int i = 0; i < values.size(); ++i) 
-        {
-            if (values[i] == value)
-                return this;
-        }
-    } 
-    else 
-    {
-        for (int i = 0; i < values.size(); ++i) 
-        {
-            if (value <= values[i]) 
-                return children[i]->search(value);
-        }
-        return children[values.size()]->search(value); // Search the last child if value is larger than all
-    }
-    return nullptr;
+bool MTree<DT>::find(const DT& value) {
+    return search(value) != nullptr;
 }
 
-// Collects and returns a sorted list of values from leaf nodes.
+// Collect all values from the tree in sorted order
 template <class DT>
-vector<DT> MTree<DT>::collectValues() 
-{
-    vector<DT> collectedValues;  
-    if (isLeaf()) 
-    {
-        for (const auto& value : values) 
-        {
-            collectedValues.push_back(value);
-        }
-    } 
-    else 
-    {
-        for (int i = 0; i < children.size(); ++i) 
-        {
-            vector<DT> childValues = children[i]->collectValues();
-            collectedValues.insert(collectedValues.end(), childValues.begin(), childValues.end());
-        }
+vector<DT> MTree<DT>::collectValues() {
+    vector<DT> result;
+
+    // Collect values from the current node
+    result.insert(result.end(), values.begin(), values.end());
+
+    // Collect values from children (if any)
+    for (auto child : children) {
+        vector<DT> childValues = child->collectValues();
+        result.insert(result.end(), childValues.begin(), childValues.end());
     }
-    return collectedValues;
+
+    return result;
 }
 
-// Builds tree from a vector of values.
-template <class DT>
 void MTree<DT>::buildTree(const vector<DT>& inputValues) 
 {
-    if (inputValues.size() <= M - 1) 
+    if (inputValues.size() <= M - 1) // Leaf Node, Base Case
     {
         values = inputValues;
     } 
     else 
     {
-        int D = inputValues.size() / M;
-        for (int i = 0; i < M; ++i) 
+        int D = inputValues.size() / M; // chunks the input_values into M sections
+        for (int i = 0; i < M; i++) 
         {
             int start = D * i;
-            int end = (i == M - 1) ? inputValues.size() : start + D;
-            
-            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end);
+            int end;
+
+            if (i == M - 1) 
+            {
+                end = inputValues.size() - 1;
+            } 
+            else 
+            {
+                end = start + D - 1;
+                // Check if the value already exists in the values vector to prevent duplicates
+                DT valueToAdd = inputValues[end];
+                bool alreadyExists = false;
+                for (DT val : values)
+                {
+                    if (valueToAdd == val)
+                        alreadyExists = true;
+                }
+                if (alreadyExists == false)
+                    values.push_back(valueToAdd);
+            }
+
+            // Internal Node, Recursive Case
+            vector<DT> child_values(inputValues.begin() + start, inputValues.begin() + end + 1);
             MTree<DT>* child = new MTree<DT>(M);
             child->buildTree(child_values); // Recursively build the tree for the child
-            children.push_back(child); // Add child to the current node
+            children.push_back(child); // Add the child to the children vector of the current node
         }
     }
 }
-
-// Checks if a node is present in the tree.
-template <class DT>
-bool MTree<DT>::find(DT& value) 
-{
-    if (search(value) != nullptr) 
-    {
-        return true;
-    }
-    else
-    {
-        throw NotFoundException();
-    }
-}
-
-// Inserts a value into the tree.
-template <class DT>
-void MTree<DT>::insert(const DT& value) 
-{
-    if (isLeaf()) 
-    {
-        for (const auto& v : values) 
-        {
-            if (v == value) 
-            {
-                throw DuplicateInsertion();
-            }
-        }
-
-        bool inserted = false;
-        for (int i = 0; i < values.size(); ++i) 
-        {
-            if (value < values[i]) 
-            {
-                values.insert(values.begin() + i, value);
-                inserted = true;
-                break;
-            }
-        }
-
-        if (!inserted) 
-        {
-            values.push_back(value);
-        }
-
-        if (values.size() >= M) 
-        {
-            splitNode(nullptr);
-        }
-    } 
-    else 
-    {
-        MTree<DT>* child = findChild(value);
-        child->insert(value);
-
-        if (child->values.size() >= M) 
-        {
-            splitNode(nullptr);
-        }
-    }
-}
-
-// Removes a node from the tree.
-// Removes a node from the tree.
-template <class DT>
-void MTree<DT>::remove(const DT& value) 
-{
-    MTree<DT>* node = search(value);
-
-    if (node == nullptr)
-        throw NotFoundException();
-
-    // Search manually for the value in the node's values
-    bool found = false;
-    for (int i = 0; i < node->values.size(); ++i) 
-    {
-        if (node->values[i] == value) 
-        {
-            node->values.erase(node->values.begin() + i);
-            found = true;
-            break;
-        }
-    }
-
-    if (!found) 
-    {
-        throw NotFoundException();
-    }
-
-    // If the node has fewer than the minimum number of elements (underflow), handle it
-    if (node->values.size() < (M / 2)) 
-    {
-        //handleUnderflow(node);
-    }
-}
-
-
 
 
 //________________________________________________ TESTING ________________________________________________//

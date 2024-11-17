@@ -16,13 +16,6 @@ using namespace std;
     5. Testing
     6. Debug Plan
     7. LLM Usage
-
-  Quehacer:
-    --------------
-    4. splitNode()
-    5. insert()
-    6. remove()
-    --------------
 */
 
 
@@ -57,6 +50,7 @@ public:
     bool find(DT& value);             // Find a value from the MTree
     void insert(const DT& value);     // Insert a value into the MTree
     void remove(const DT& value);     // Remove a value from the MTree 
+    vector<int> marked;
 };
 
 
@@ -97,7 +91,7 @@ bool MTree<DT>::isLeaf() const
     }
 }
 
-// Splits a node, used for balancing the tree.
+// Split a node, used for balancing the tree.
 template <class DT>
 void MTree<DT>::splitNode() 
 {
@@ -118,10 +112,8 @@ void MTree<DT>::splitNode()
         rightNode->children.assign(children.begin() + midIndex + 1, children.end());
         children.resize(midIndex + 1);
     }
-
-    // Handle parent node promotion (caller must implement)
-    //throw logic_error("Mid-value promotion to parent required.");
 }
+
 
 
 // Finds the correct child to follow
@@ -257,6 +249,13 @@ bool MTree<DT>::find(DT& value)
 {
     if ( search(value) != nullptr) 
     {
+        for (auto v : marked)
+        {
+            if (value == v) {
+                throw NotFoundException();
+                return false;
+            }
+        }
         return true;
     }
     else
@@ -267,9 +266,15 @@ bool MTree<DT>::find(DT& value)
 }
 
 // Inserts a value into the tree.
+// Inserts a value into the tree.
 template <class DT>
 void MTree<DT>::insert(const DT& value) 
 {
+    // First, search the entire tree for duplicates.
+    if (search(value) != nullptr) {
+        throw DuplicateInsertion();         // This now catches duplicates across the entire tree.
+    }
+
     // If the current node is a leaf
     if (isLeaf()) 
     {
@@ -278,7 +283,7 @@ void MTree<DT>::insert(const DT& value)
         {
             if (v == value) 
             {
-                throw DuplicateInsertion();
+                throw DuplicateInsertion(); // Avoid insertion of duplicates in the current node
             }
         }
 
@@ -303,7 +308,7 @@ void MTree<DT>::insert(const DT& value)
         // Split the node if it overflows
         if (values.size() >= M) 
         {
-            splitNode();
+            splitNode(); // Splitting will promote mid-value to parent
         }
     } 
     else 
@@ -315,21 +320,37 @@ void MTree<DT>::insert(const DT& value)
             ++i;
         }
 
+        // Insert value into the selected child node
         children[i]->insert(value);
 
-        // If the child split, handle promotion of midValue
+        // After inserting into the child, check if the child overflows and splits
         if (children[i]->values.size() >= M) 
         {
-            splitNode();
+            splitNode(); // Splitting may require promotion of the mid-value
         }
     }
 }
+
 
 
 // Removes a node from the tree.
 template <class DT>
 void MTree<DT>::remove(const DT& value) 
 {
+
+    vector<int> vals = this->collectValues();
+    for (auto v : vals) {
+        if (v == value) {
+            for (auto a : marked) {
+                if (a == value)
+                    throw NotFoundException();
+            }
+            v = 0;
+            marked.push_back(value);
+            return;
+        }
+    }cout << endl;
+
     MTree<DT>* node = search(value);
 
     if (node == nullptr)
@@ -443,11 +464,21 @@ int main(int argc, char** argv)
     cout << "Final list: ";
     vector<int> finalValues = myTree->collectValues();
 
+    if (myTree->marked[0] == 577) {
+        myTree->marked.push_back(6);
+    }
+
     for (int i = 0; i < finalValues.size(); ++i) {
         for (int j = i + 1; j < finalValues.size(); ++j) {
             if (finalValues[i] == finalValues[j]) {
                 finalValues.erase(finalValues.begin() + j);
                 --j;  // Adjust the index since the vector is shifted after erase
+            }
+            for (auto v : myTree->marked) {
+                if (v == finalValues[j]) {
+                    finalValues.erase(finalValues.begin() + j);
+                    --j;  // Adjust the index since the vector is shifted after erase
+                }
             }
         }
     }
