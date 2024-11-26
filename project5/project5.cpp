@@ -23,26 +23,126 @@ using namespace std;
 
  
 int main () { 
- 
-  //read the name of the file ./a.out < filename.txt 
-      
-  //get each token and store them in the unordered_map (or map) increment 
-  //its frequencies. You MAY be able to do myTokens[aToken]++. Work on this. 
- 
+
+  //-------------------------------------------------------------------------------------------
+  /*** Program Variables ***/
+  ofstream tempFile("temp.txt");
+  ifstream inputFile("temp.txt");
+  char ch;
+  string token;
+  unordered_map<string,int> tokensMap;
+  //-------------------------------------------------------------------------------------------
+  //read the name of the file ./a.out < filename.txt (this does not work btw.)
+  //^^this command redirect input, it does not get filename.. To get around this
+  //  im going to make a temp file from the cin input.
+  while (!cin.eof()) {
+    cin.get(ch);
+    tempFile.put(ch);
+  }
+  tempFile.close();
+  //-------------------------------------------------------------------------------------------
+  //read from the temp input file and store tokens and counts in tokensMap.
+    //get each token and store them in the unordered_map (or map) increment 
+    //its frequencies. You MAY be able to do myTokens[aToken]++. Work on this.
+  while (!inputFile.eof()) {
+    do { //process dilemeters
+      inputFile.get(ch);
+    } while ((!inputFile.eof()) && ((ch == ' ') || (ch == '\n')));
+
+    if (!inputFile.eof()) { //process tokens
+      token.clear();
+      while ((!inputFile.eof()) && ((ch != ' ') && (ch != '\n'))) {
+        token += ch;
+        inputFile.get(ch); 
+      }
+      if (tokensMap[token] == 0) { //==NULL
+        tokensMap[token] = 1;
+      }
+      else {
+        tokensMap[token]++;
+      }
+    }
+  }
+  //-------------------------------------------------------------------------------------------
   //close the file (filename.txt) 
-  //sort the myTokens in the decreasing order of VALUE which is frequencies 
-  //print the KEYS in myTokens (which has been sorted)separated by a space. 
- 
+  inputFile.close();
+
+  // Multimap to store frequencies, with inner map sorting the words lexicographically
+  multimap<int, map<string, int>, greater<int>> tokensMapSorted;
+
+  // Fill the multimap with data
+  for (const auto& pair : tokensMap) {
+    // Try to find the frequency group in the multimap
+    auto it = tokensMapSorted.find(pair.second);
+
+    // If the frequency group doesn't exist, create a new one
+    if (it == tokensMapSorted.end()) {
+      map<string, int> innerMap;
+      innerMap[pair.first] = pair.second;
+      tokensMapSorted.insert({pair.second, innerMap});
+    } else {
+      // If the frequency group exists, insert the word into the inner map
+      it->second[pair.first] = pair.second;
+    }
+  }
+
+  // Print the words, first sorted by frequency and then by lexicographical order
+  for (const auto& freqPair : tokensMapSorted) {
+    // Iterate over the map of strings for each frequency group
+    for (const auto& wordPair : freqPair.second) {
+      cout << wordPair.first << " ";
+    }
+  }
+  //-------------------------------------------------------------------------------------------
   //after you printed the KEYS Do this 
   cout << endl; 
   cout << "********" << endl; 
    
   //Now open the filename.text file again for reading 
-  //Read token by token as you have done this before 
-  //each time you get a token, find its position in the myTokens (sorted 
-  //data structure and print the position followed by space 
+  ifstream inputFile2("temp.txt");
+
+  while (!inputFile2.eof()) {
+    do { 
+      // Process delimiters (spaces or newlines)
+      inputFile2.get(ch);
+    } while ((!inputFile2.eof()) && ((ch == ' ') || (ch == '\n')));
+
+    if (!inputFile2.eof()) {
+      // Process tokens
+      token.clear();
+      while ((!inputFile2.eof()) && ((ch != ' ') && (ch != '\n'))) {
+        token += ch;
+        inputFile2.get(ch);
+      }
+
+      // Now, token contains the word. Find its position in the sorted map.
+      bool found = false;
+      int globalIndex = 1;  // Initialize a global index to track position across all frequency groups
+
+      for (const auto& freqPair : tokensMapSorted) {
+        int localIndex = 0;  // Local index within a frequency group
+        // Iterate over the map of strings for each frequency group
+        for (const auto& wordPair : freqPair.second) {
+          if (wordPair.first == token) {
+            cout << globalIndex + localIndex << " "; // Position is the global index + local index
+            found = true;
+            break;
+          }
+          localIndex++;  // Increment local index within the current frequency group
+        }
+        if (found) {
+          break; // If found, exit the outer loop
+        }
+        globalIndex += freqPair.second.size(); // Increment the global index for the next frequency group
+      }
+
+      if (!found) {
+        cout << "-1 ";  // If the token was not found, print -1
+      }
+    }
+  }
  
   cout << endl; 
- 
   return 0; 
+//-------------------------------------------------------------------------------------------
 }

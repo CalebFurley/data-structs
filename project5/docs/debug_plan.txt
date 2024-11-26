@@ -1,0 +1,43 @@
+Specific-Test:
+  The first two tests of the project were conducted on smaller files
+  which I created from the example code given for reading input from
+  the inputs files and generating tokens, as well as the includes for maps
+  and unordered_maps which I used to create a few small maps and get
+  a feel for using STL maps.
+    The tests conducted were simply running the io code, after analyzing
+    each line (very similar to int c = getchar() with a FILE*) then adding
+    values to each type of map and outputing those. Once I had a good feel 
+    for these two programs I began work on the actual project5.cpp file.
+
+  
+Issues-Resolutions:
+  The first issue encountered was when reading in the input for project5.cpp. I was
+  going to use the ifstream approach, but I noticed the program wants to pass
+  ./a.out < input.txt so I changed the approach to just use cin. When I did this the
+  program would output infinite '.' characters. I aksed ChatGPT why, and it expained
+  to use the .get() method on the cin object basically to use getchar() from stdio.h
+  so I used that along with .put() on cout and successfully outputed the text from
+  the initial input file.
+    After doing all this, I realized I need to parse through the file a second time.
+    There is no way to store the ./a.out < filename.txt and actually get the filename..
+    So instead I am going to hardcode the filename into the ifstream object and when
+    uploading to gradescope try and debug how you guys read the file. (I just tried
+    to look and noticed yall are using a makefile so I cant actually see the command
+    you are compiling with so I just have to test and see what happens.)
+  
+  Another issue encountered was that when sorting the tokens to output, I noticed the order
+  was incorrect when the occurence values where the same. To fix this I figured and insected that
+  when values have the same occurence value, to sort them by ascii values.
+
+  Once the values were in the correct order with some help of chatgpt (struggling to think of
+  solutions without the vector class or overly complicated solutions) the output was matching to
+  the output files.
+    Of course though... The code didnt pass the gradescope tests. So I needed to go through and
+    figure out what was wrong with the gradescope tests (at first glance I see mispelled words
+    which could possibly be the case) or whitespace formatting or anything.
+      But once the formatting and stuff is altered to pass the gradescope tests, the code will
+      be complete.
+
+Verification:
+  The code was verified by matching the output side by side with the output files given. The code
+  was then analyzed against the gradescope tests and submitted.
