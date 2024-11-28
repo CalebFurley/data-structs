@@ -25,25 +25,26 @@ using namespace std;
 int main () { 
 
   //-------------------------------------------------------------------------------------------
-  /*** Program Variables ***/
+  //program variables
   ofstream tempFile("temp.txt");
   ifstream inputFile("temp.txt");
   char ch;
   string token;
   unordered_map<string,int> tokensMap;
+  multimap<int, map<string, int>, greater<int>> tokensMapSorted;
+
   //-------------------------------------------------------------------------------------------
-  //read the name of the file ./a.out < filename.txt (this does not work btw.)
-  //^^this command redirect input, it does not get filename.. To get around this
-  //  im going to make a temp file from the cin input.
+  //use cin redirection to read the input, then redirect it to a temp file
+  //to be able to create an fstream object for rest of project.
   while (!cin.eof()) {
     cin.get(ch);
     tempFile.put(ch);
   }
   tempFile.close();
+
   //-------------------------------------------------------------------------------------------
-  //read from the temp input file and store tokens and counts in tokensMap.
-    //get each token and store them in the unordered_map (or map) increment 
-    //its frequencies. You MAY be able to do myTokens[aToken]++. Work on this.
+  //read from the temp input file and store tokens and counts in the 
+  //unordered tokensMap.
   while (!inputFile.eof()) {
     do { //process dilemeters
       inputFile.get(ch);
@@ -55,7 +56,7 @@ int main () {
         token += ch;
         inputFile.get(ch); 
       }
-      if (tokensMap[token] == 0) { //==NULL
+      if (tokensMap[token] == 0) { //add tokens to the map
         tokensMap[token] = 1;
       }
       else {
@@ -63,12 +64,24 @@ int main () {
       }
     }
   }
-  //-------------------------------------------------------------------------------------------
+
   //close the file (filename.txt) 
   inputFile.close();
+  //-------------------------------------------------------------------------------------------
+  //read the tokens into a multimap which sorts them based
+  //primarily on their occurence within the text, but also
+  //on their chronological order within the alphabet if the
+  //tokens are tied on their occurence rankings.
 
-  // Multimap to store frequencies, with inner map sorting the words lexicographically
-  multimap<int, map<string, int>, greater<int>> tokensMapSorted;
+/*
+  for (each elemenet in the map)
+    occurence = map[i]
+    for (each element in the map which equals the occurence)
+      store in a vector or array
+    sort the array by asci values
+    cout the ordered list
+    increment occurence to next occurence amount
+*/
 
   // Fill the multimap with data
   for (const auto& pair : tokensMap) {
